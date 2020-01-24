@@ -1,0 +1,14 @@
+.basic-info {
+    padding-top: 25px;
+}
+
+.action-plan {
+    padding-top: 25px;
+}
+
+li {
+    position: relative;
+    float: left;
+    text-align: center;
+    padding: 20px;
+}

@@ -1,8 +1,6 @@
 html {
     position: relative;
     min-height: 100%;
-    background-color: green;
-    color: green;
 }
 body {
     margin-bottom: 60px;
@@ -13,5 +11,5 @@ body {
     width: 100%;
     height: 40px;
     line-height: 60px;
-    background-color: red;
+    background-color: grey;
 }

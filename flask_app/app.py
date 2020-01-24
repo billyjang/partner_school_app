@@ -10,6 +10,6 @@ def home():
 def hello():
     return 'Hello, World!'
 
-
-
-
+@app.route('/readdata')
+def readdata():
+    return "yo"

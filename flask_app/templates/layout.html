@@ -9,16 +9,18 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width", initial-scale=1">
         <title>Partners in School</title>
-        <link href="layout.css" rel="stylesheet">
+        <link href="{{ (url_for('static', filename='layout.css') )}}" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         {% endblock %}
     </head>
-    <body>
+    <body class="bg-light">
         <nav class="navbar navbar-dark bg-dark">
             <a class="navbar-brand" href="#">Menu</a>
             <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse" id="navbarsExample01" style>
+                <! probably good to use the url for jinja stuff here !>
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
                         <a class="nav-link" href="#">
@@ -32,10 +34,19 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Data Collection</a>
                     </li>
+                    <li>
+                        <a class="nav-link" href="/readdata">Data Dashboard</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#">Videos</a>
+                    </li>
                 </ul>
             </div>
         </nav>
-        <div id="content">{% block content %}{% endblock %}</div>
+        <div class="container">
+            <div id="content">{% block content %}{% endblock %}</div>
+        </div>
+
         <footer class="footer">
             <div class="container">
                 <span class="text-muted">Copyright and contact information.</span>
