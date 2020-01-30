@@ -1,18 +1,18 @@
 from flask import Flask
 from flask import render_template, url_for, request, redirect, session
-from flask_session import Session
+#from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from crypt import pwd_context
 
 app = Flask(__name__)
-session = Session()
+#sess = Session()
 
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://kjmuultbvkoaqd:56ac542cebad0a7473deb0c24d9a87daab81dd0511b4925f9e552fe834d1f1fd@ec2-34-193-42-173.compute-1.amazonaws.com:5432/d76s1h363rpp0'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'super secret key'
-session.init_app(app)
+#sess.init_app(app)
 uincrement=1
 
 db = SQLAlchemy(app)
@@ -21,11 +21,25 @@ from models import *
 loggedIn=False
 
 #login and register
+# TODO: make the control flow a bit cleaner
+# TODO: make sure the get and post is clear so authentication actually means something
 @app.route('/', methods=['GET','POST'])
 def home():
     if request.method=='POST':
-        session.pop('user', None)
-
+        session.pop('email', None)
+        user_email = request.form['email']
+        matching_emails = User.query.filter_by(email=user_email)
+        if matching_emails.count() != 1:
+            return redirect(url_for('home'))
+        else:
+            session['email']=user_email
+            password = request.form['password']
+            verify_password = matching_emails.with_entities(User.password).all()[0][0]
+            print(verify_password)
+            if pwd_context.verify(password, verify_password):
+                return redirect(url_for('addentry'))
+            else:
+                return redirect(url_for('home'))            
     else:
         return render_template('login.html')
 
@@ -51,11 +65,12 @@ def newaccountsuccess():
         cfirstName = request.form['childFirstName']
         clastName = request.form['childLastName']
         userRole = request.form['userRole']
+        email = request.form['email']
         # TODO: check if passwords are the same in javascript or jquery
         password = request.form['password']
         hashed = pwd_context.hash(password)
         try:
-            new_user = User(uincrement, firstName, lastName, cfirstName, clastName, userRole, hashed)
+            new_user = User(uincrement, firstName, lastName, cfirstName, clastName, userRole, email, hashed)
             db.session.add(new_user)
             db.session.commit()
             uincrement += 1
@@ -64,9 +79,11 @@ def newaccountsuccess():
             print(str(e))
             return redirect(url_for('newaccount'))
 
+# adding entry and viewing data
+
 @app.route('/addentry') # add required message here?
 def addentry():
-    if loggedIn:
+    if session['email'] != None:
         return render_template('addentry.html')
     else:
         return "not logged in"

@@ -9,18 +9,24 @@ class User(db.Model):
     childFirstName = db.Column(db.String(80), nullable=False)
     childLastName = db.Column(db.String(80), nullable=False)
     userRole = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
 
     
-    def __init__(self, userid=None, firstName=None, lastName=None, childFirstName=None, childLastName=None, userRole=None, password=None):
+    def __init__(self, userid=None, firstName=None, lastName=None, childFirstName=None, childLastName=None, userRole=None, email=None, password=None):
         self.userid=userid
         self.firstName=firstName
         self.lastName=lastName
         self.childFirstName=childFirstName
         self.childLastName=childLastName
         self.userRole=userRole
+        self.email=email
         self.password=password
     
+    def __repr__(self):
+        # TODO: might want to get rid of password in repr
+        return "<User(userid={}, firstName={}, lastName={}, childFirstName={}, childLastName={}, userRole={}, email={}, password={})>".format(self.userid, self.firstName, self.lastName,
+                self.childFirstName, self.childLastName, self.userRole, self.email, self.password)
 '''
 class Entry(db.Model):
     __tablename__ = 'entry'
