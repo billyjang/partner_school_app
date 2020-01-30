@@ -13,45 +13,47 @@
         <meta name="theme-color" content="#563d7c">
     </head>
     <body class="bg-light">
-        <div class="container">
-            <div class="text-center">
-                <img class="img-thumbnail" src="{{ (url_for('static', filename='kki.jpg')) }}" alt height="350px" width="350px">
-                <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
-                <form class="sign-in" method="POST">
-                    <div class="inputs">
-                        <div class="row justify-content-center">
-                            <div class="col-md-4">
-                                <input class="form-control form-control-lg" type="form-control" name="email" id="email" placeholder="Email address" required>
+        <div class="container h-100 shadow p-3 mb-5 bg-white rounded">
+            <div class="align-self-center">
+                <div class="text-center">
+                    <img class="img-thumbnail" src="{{ (url_for('static', filename='kki.jpg')) }}" alt height="350px" width="350px">
+                    <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+                    <form class="sign-in" method="POST">
+                        <div class="inputs">
+                            <div class="row justify-content-center">
+                                <div class="col-md-4">
+                                    <input class="form-control form-control-lg" type="form-control" name="email" id="email" placeholder="Email address" required>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <div class="col-md-4">
+                                    <input class="form-control form-control-lg" type="form-control" name="password" id="password" placeholder="Password" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="row justify-content-center">
+                        <div class="row justify-content-center" id="submitbutton">
                             <div class="col-md-4">
-                                <input class="form-control form-control-lg" type="form-control" name="password" id="password" placeholder="Password" required>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="row justify-content-center" id="submitbutton">
+                    </form>
+                </div>
+                <div class="row justify-content-center">
+                    <h6>-- or --</h6>
+                </div>
+                <form class="new-account" action="{{ url_for('newaccount') }}" method="POST">
+                    <div class="row justify-content-center">
                         <div class="col-md-4">
-                            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
+                            <button class="btn btn-lg btn-primary btn-block" type="submit">Create an Account</button>
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="row justify-content-center">
-                <h6>-- or --</h6>
-            </div>
-            <form class="new-account" action="{{ url_for('newaccount') }}" method="POST">
-                <div class="row justify-content-center">
-                    <div class="col-md-4">
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Create an Account</button>
+                <footer class="footer">
+                    <div class="container">
+                        <span class="text-muted">Copyright and contact information.</span>
                     </div>
-                </div>
-            </form>
-            <footer class="footer">
-                <div class="container">
-                    <span class="text-muted">Copyright and contact information.</span>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </div>
     </body>
 </html>

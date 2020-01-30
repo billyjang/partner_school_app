@@ -1,12 +1,12 @@
 .text-center {
     padding-top: 30px;
 }
-
 html {
     position: relative;
     min-height: 100%;
 }
 body {
+    padding-top: 50px;
     margin-bottom: 60px;
     background-color: green !important;
 }

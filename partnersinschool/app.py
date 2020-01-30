@@ -23,6 +23,7 @@ loggedIn=False
 #login and register
 # TODO: make the control flow a bit cleaner
 # TODO: make sure the get and post is clear so authentication actually means something
+# TODO: screenreader accessibility
 @app.route('/', methods=['GET','POST'])
 def home():
     if request.method=='POST':
@@ -32,11 +33,12 @@ def home():
         if matching_emails.count() != 1:
             return redirect(url_for('home'))
         else:
-            session['email']=user_email
+            session['email'] = user_email
             password = request.form['password']
             verify_password = matching_emails.with_entities(User.password).all()[0][0]
-            print(verify_password)
             if pwd_context.verify(password, verify_password):
+                print(matching_emails.with_entities(User.userRole).all()[0][0])
+                session['role'] = matching_emails.with_entities(User.userRole).all()[0][0]
                 return redirect(url_for('addentry'))
             else:
                 return redirect(url_for('home'))            
@@ -80,11 +82,12 @@ def newaccountsuccess():
             return redirect(url_for('newaccount'))
 
 # adding entry and viewing data
-
 @app.route('/addentry') # add required message here?
 def addentry():
     if session['email'] != None:
-        return render_template('addentry.html')
+        print(session.get('email'))
+        print(session.get('role'))
+        return render_template('addentry.html', data=session.get('role', None))
     else:
         return "not logged in"
 

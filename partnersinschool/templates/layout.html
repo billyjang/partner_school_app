@@ -15,30 +15,27 @@
     </head>
     <body class="bg-light">
         <nav class="navbar navbar-dark bg-dark">
-            <a class="navbar-brand" href="#">Menu</a>
+            <a class="navbar-brand" href="{{url_for('home')}}">Menu</a>
             <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse" id="navbarsExample01" style>
                 <!-- probably good to use the url for jinja stuff here -->
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">
-                            Home
-                            <span class="sr-only"(current)></span>
-                        </a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('home')}}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Data Collection</a>
+                        <a class="nav-link" href="{{url_for('addentry')}}">Add Entry</a>
                     </li>
                     <li>
-                        <a class="nav-link" href="/readdata">Data Dashboard</a>
+                        <a class="nav-link" href="#">Data Dashboard</a>
                     </li>
                     <li>
                         <a class="nav-link" href="#">Videos</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#">Logout</a>
                     </li>
                 </ul>
             </div>

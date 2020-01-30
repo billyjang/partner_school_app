@@ -24,10 +24,18 @@
                 newActionPlanEntry.show();
             }
         }
+        $( document ).ready(function() {
+            let data = "{{data|safe}}"
+            if(data=="Parent") {
+                $(".teacher-eval").hide();
+            } else if(data=="Teacher") {
+                $(".parent-eval").hide();
+            }
+        })
     </script>
 {% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container shadow p-3 mb-5 bg-white rounded">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h1>Partners in School</h1>
@@ -48,23 +56,23 @@
                 <div class="row justify-content-center">
                     <div class="col-md-4">
                         <label for="firstName">First name</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName">
+                        <input type="text" class="form-control" id="firstName" name="firstName" required>
                     </div>
                     <div class="col-md-4">
                         <label for="lastName">Last name</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName">
+                        <input type="text" class="form-control" id="lastName" name="lastName" required>
                     </div>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <label for="targetBehavior">Target Behavior</label>
-                        <input type="text" class="form-control" id="targetBehavior" name="targetBehavior">
+                        <input type="text" class="form-control" id="targetBehavior" name="targetBehavior" required>
                     </div>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <label for="homeSchoolGoal">Home/School Goal</label>
-                        <input type="text" class="form-control" id="homeSchoolGoal" name="homeSchoolGoal">
+                        <input type="text" class="form-control" id="homeSchoolGoal" name="homeSchoolGoal" required>
                     </div>
                 </div>
             </div>
@@ -78,41 +86,84 @@
                     <div class="row justify-content-center">
                         <div class="col-md-8">
                             <label for="actionPlan">Action plan # 1</label>
-                            <input type="text" class="form-control" id="actionPlan" name="actionPlan">
+                            <input type="text" class="form-control" id="actionPlan" name="actionPlan" required>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center">
+            <div class="row justify-content-center" id="addAPButton">
                 <span class="border">
                     <button class="btn btn-light" onclick="appendActionPlan()" type="button">Enter another action plan</button>
                 </span>
-                
             </div>
             <div class="goalRange">
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <label for="goalRangeTeacher">At the end of the day, please indicate how closely the above GOAL was met.</label>
-                        <input type="range" class="custom-range" min="0" max="4" step="1.0" id="goalRangeTeacher" name="goalRangeTeacher">
+                <div class="teacher-eval">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h3>Teacher Evaluation</h3>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <ul class="list-group list-group-horizontal">
-                            <li class="list-group-item">Situation significantly worse</li>
-                            <li class="list-group-item">Situation somewhat worse</li>
-                            <li class="list-group-item">No progress</li>
-                            <li class="list-group-item">Situation somewhat better</li>
-                            <li class="list-group-item">Situation significantly better</li>
-                        </ul>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <label for="goalRangeTeacher">At the end of the day, please indicate how closely the above GOAL was met.</label>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="signatureTeacher">Signature of Teacher</label>
+                            
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <label for="signature1">Signature of Teacher</label>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <select class="form-control" id="goalRangeTeacher" name="goalRangeTeacher">
+                                <option>Situation significantly worse</option>
+                                <option>Situation somewhat worse</option>
+                                <option selected>No progress</option>
+                                <option>Situation somewhat better</option>
+                                <option>Situation significantly better</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="signatureTeacher" name="signatureTeacher" required>
+                        </div>
+                    </div>
+                </div>
+                <!-- Parent Eval -->
+                <div class="parent-eval">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h3>Parent Evaluation</h3>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <label for="goalRangeParent">At the end of the day, please indicate how closely the above GOAL was met.</label>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="signatureParent">Signature of Parent</label>
+                            
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <select class="form-control" id="goalRangeParent" name="goalRangeParent">
+                                <option>Situation significantly worse</option>
+                                <option>Situation somewhat worse</option>
+                                <option selected>No progress</option>
+                                <option>Situation somewhat better</option>
+                                <option>Situation significantly better</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="signatureParent" name="signatureParent" required>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center">
+            <div class="row justify-content-center submit-data">
                 <button class="btn btn-dark" type="submit">Submit data</button>
             </div>
         </form>
     </div>
+
 
 {% endblock %}
