@@ -11,6 +11,9 @@
 #addAPButton {
     padding-top: 25px;
 }
+#goalRangeParent, #goalRangeTeacher {
+    padding-bottom: 25px;
+}
 .parent-eval, .teacher-eval {
     padding-top: 25px;
 }
@@ -23,4 +26,7 @@ li {
     float: left;
     text-align: center;
     padding: 20px;
+}
+#rateGoal {
+    padding-bottom: 25px;
 }
