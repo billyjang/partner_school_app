@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, url_for, request, redirect, session
+from flask import render_template, url_for, request, redirect, session, flash
 #from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from crypt import pwd_context
@@ -59,7 +59,10 @@ def newaccountsuccess():
                 print(request.form[k])
                 empty=True
         if empty:
-            print('hit')
+            flash('Must fill out all required fields')
+            return redirect(url_for('newaccount'))
+        if request.form['password'] != request.form['passwordAgain']:
+            flash('Passwords must match')
             return redirect(url_for('newaccount'))
         email=request.form['email']
         firstName = request.form['firstName']

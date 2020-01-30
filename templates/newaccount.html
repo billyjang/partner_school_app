@@ -15,6 +15,13 @@
     <body class="bg-light">
         <div class="container">
             <div class="text-center">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                            {% for message in messages %}
+                                <h3 class="flashing">{{ message }}</h3>
+                            {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <h1 class="h3 mb-3 font-weight-normal">Register account</h1>
                 <form action="{{ url_for('newaccountsuccess') }}" method="POST">
                     <div class="row justify-content-center">
