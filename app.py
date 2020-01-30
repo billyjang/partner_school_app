@@ -49,7 +49,7 @@ def home():
 def newaccount():
     return render_template('newaccount.html')
 
-@app.route('/newaccountsuccess', methods=['POST'])
+@app.route('/newaccountsuccess', methods=['POST', 'GET'])
 def newaccountsuccess():
     global uincrement
     if request.method=='POST':
@@ -83,7 +83,9 @@ def newaccountsuccess():
         except Exception as e:
             print(str(e))
             return redirect(url_for('newaccount'))
-
+    else:
+        # TODO: CHANGE THIS
+        return render_template('newaccountsuccess.html')
 # adding entry and viewing data
 @app.route('/addentry') # add required message here?
 def addentry():

@@ -1,9 +1,26 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>yo</title>
-    </head>
-    <body>
-        <h1>also yo</h1>
-    </body>
-</html>
+{% extends "layout.html" %}
+{% block title %}Account Creation Success{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-self-center">
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+              <div class="col-md-4">
+                <img src="static/icons8-checkmark-192.png" class="card-img img-responsive" alt="checkmark icon">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h3 class="card-title">Account created successfully!</h3>
+                  <a href="{{url_for('home')}}" class="card-text">Click here to go back to the login page.</a>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
