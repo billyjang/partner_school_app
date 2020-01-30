@@ -2,15 +2,25 @@ from manage import db, app
 
 class User(db.Model):
     __tablename__ = 'User'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    usertype = db.Column(db.String(120), nullable=False)
+    #uid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    userid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    firstName = db.Column(db.String(80), nullable=False)
+    lastName = db.Column(db.String(80), nullable=False)
+    childFirstName = db.Column(db.String(80), nullable=False)
+    childLastName = db.Column(db.String(80), nullable=False)
+    userRole = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
 
-    def __init__(self, id=None, username=None, password=None):
-        self.id=id
-        self.username=username
+    
+    def __init__(self, userid=None, firstName=None, lastName=None, childFirstName=None, childLastName=None, userRole=None, password=None):
+        self.userid=userid
+        self.firstName=firstName
+        self.lastName=lastName
+        self.childFirstName=childFirstName
+        self.childLastName=childLastName
+        self.userRole=userRole
         self.password=password
+    
 '''
 class Entry(db.Model):
     __tablename__ = 'entry'
