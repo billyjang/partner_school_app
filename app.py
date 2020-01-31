@@ -23,6 +23,8 @@ loggedIn=False
 # TODO: make the control flow a bit cleaner
 # TODO: make sure the get and post is clear so authentication actually means something
 # TODO: screenreader accessibility
+# TODO: changing the exception handling
+
 @app.route('/', methods=['GET','POST'])
 def home():
     if request.method=='POST':
@@ -102,28 +104,40 @@ def submitted():
         targetBehavior=request.form['targetBehavior']
         homeSchoolGoal=request.form['homeSchoolGoal']
         actionPlans=request.form.getlist('actionPlan')
+        date=request.form['date']
         goalRange=None
         if session['role'] == 'Teacher':
-            goalRange = request.form.getlist('goalRangeTeacher')
+            goalRange = request.form['goalRangeTeacher']
         else:
-            goalRange = request.form.getlist('goalRangeParent')
+            goalRange = request.form['goalRangeParent']
         if firstName=='' or lastName=='' or targetBehavior=='' or homeSchoolGoal=='' or actionPlans==None:
             #return render_template('addentry.html', message="*Please fill out required fields*")
             flash("Must fill out all fields")
             return redirect(url_for('addentry'))
         else:
-            print(actionPlans)
-            print(goalRange)
-            entry = Entry()
+            print(date)
+            current_user = User.query.filter_by(email=session['email']).all()[0]
+            mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
+            new_entry = Entry(user_id=current_user.userid, target_behavior=targetBehavior, home_school_goal=homeSchoolGoal, goal_rating=mapping[goalRange], date=date)
+            # TODO: more elegant way to do this. FOR TESTING PURPOSES ONLY
+            new_entry.action_plan_one = actionPlans[0]
+            if(len(actionPlans) > 1):
+                new_entry.action_plan_two = actionPlans[1]
+            if(len(actionPlans) > 2):
+                new_entry.action_plan_three = actionPlans[2]
+            if(len(actionPlans) > 3):
+                new_action.action_plan_four = actionPlans[3]
+            if(len(actionPlans) > 4):
+                new_action.action_plan_five = actionPlans[4]
+            current_user.entries.append(new_entry)
+            db.session.add(new_entry)
+            db.session.add(current_user)
+            db.session.commit()
             return render_template('submitted.html')
-
-@app.route('/hello')
-def hello():
-    return "hello, world"
 
 @app.route('/readdata')
 def readdata():
-    if loggedIn:
+    if session['email'] != None:
         return render_template('readdata.html')
     else:
         return "not logged in"
