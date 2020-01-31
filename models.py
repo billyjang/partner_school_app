@@ -40,6 +40,25 @@ class Entry(db.Model):
     action_plan_five = db.Column(db.String(255))
     goal_rating = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date())
+
+    def serialize(self):
+        action_plans = [self.action_plan_one]
+        if self.action_plan_two != None:
+            action_plans.append(self.action_plan_two)
+        if self.action_plan_three != None:
+            action_plans.append(self.action_plan_three)
+        if self.action_plan_four != None:
+            action_plans.append(self.action_plan_four)
+        if self.action_plan_five != None:
+            action_plans.append(self.action_plan_five)
+        return {
+            'date':self.date.isoformat(),
+            'target_behavior':self.target_behavior,
+            'home_school_goal':self.home_school_goal,
+            'action_plans':action_plans,
+            'goal_rating':self.goal_rating,
+            'user_id':self.user_id
+        }
 '''
 class Entry(db.Model):
     __tablename__ = 'entry'

@@ -3,6 +3,7 @@ from flask import render_template, url_for, request, redirect, session, flash
 #from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from crypt import pwd_context
+import json
 
 app = Flask(__name__)
 #sess = Session()
@@ -44,6 +45,7 @@ def home():
             else:
                 return redirect(url_for('home'))            
     else:
+        session.pop('email', None)
         return render_template('login.html')
 
 @app.route('/newaccount', methods=['POST', 'GET'])
@@ -89,12 +91,13 @@ def newaccountsuccess():
 # adding entry and viewing data
 @app.route('/addentry') # add required message here?
 def addentry():
-    if session['email'] != None:
-        print(session.get('email'))
-        print(session.get('role'))
-        return render_template('addentry.html', data=session.get('role', None))
-    else:
-        return "not logged in"
+    try:
+        if session['email'] != None:
+            print(session.get('email'))
+            print(session.get('role'))
+            return render_template('addentry.html', data=session.get('role', None))
+    except:
+        return "To fill in later. Redirect to login."
 
 @app.route('/submitted', methods=['POST'])
 def submitted():
@@ -126,9 +129,9 @@ def submitted():
             if(len(actionPlans) > 2):
                 new_entry.action_plan_three = actionPlans[2]
             if(len(actionPlans) > 3):
-                new_action.action_plan_four = actionPlans[3]
+                new_entry.action_plan_four = actionPlans[3]
             if(len(actionPlans) > 4):
-                new_action.action_plan_five = actionPlans[4]
+                new_entry.action_plan_five = actionPlans[4]
             current_user.entries.append(new_entry)
             db.session.add(new_entry)
             db.session.add(current_user)
@@ -137,7 +140,21 @@ def submitted():
 
 @app.route('/readdata')
 def readdata():
-    if session['email'] != None:
-        return render_template('readdata.html')
-    else:
-        return "not logged in"
+    try:
+        if session['email'] != None:
+            current_user = User.query.filter_by(email=session['email']).all()[0]
+            all_entries = current_user.entries
+            table_data = json.dumps([entry.serialize() for entry in all_entries])
+            return render_template('readdata.html', data=table_data)
+    except KeyError:
+        return "To fill in later. Redirect to login."
+
+@app.route('/logout')
+def logout():
+    try:
+        if session['email'] != None:
+            session.pop('email', None)
+            session.pop('role', None)
+            return redirect(url_for('home'))
+    except KeyError:
+        return redirect(url_for('home'))
