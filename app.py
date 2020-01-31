@@ -45,7 +45,6 @@ def home():
             else:
                 return redirect(url_for('home'))            
     else:
-        session.pop('email', None)
         return render_template('login.html')
 
 @app.route('/newaccount', methods=['POST', 'GET'])
