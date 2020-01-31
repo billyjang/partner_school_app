@@ -13,7 +13,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'super secret key'
 #sess.init_app(app)
-uincrement=1
 
 db = SQLAlchemy(app)
 from models import *
@@ -51,7 +50,6 @@ def newaccount():
 
 @app.route('/newaccountsuccess', methods=['POST', 'GET'])
 def newaccountsuccess():
-    global uincrement
     if request.method=='POST':
         empty = False
         for k,v in request.form.items():
@@ -75,10 +73,9 @@ def newaccountsuccess():
         password = request.form['password']
         hashed = pwd_context.hash(password)
         try:
-            new_user = User(uincrement, firstName, lastName, cfirstName, clastName, userRole, email, hashed)
+            new_user = User(firstName, lastName, cfirstName, clastName, userRole, email, hashed)
             db.session.add(new_user)
             db.session.commit()
-            uincrement += 1
             return render_template('newaccountsuccess.html')
         except Exception as e:
             print(str(e))
@@ -86,6 +83,7 @@ def newaccountsuccess():
     else:
         # TODO: CHANGE THIS
         return render_template('newaccountsuccess.html')
+    
 # adding entry and viewing data
 @app.route('/addentry') # add required message here?
 def addentry():
@@ -104,13 +102,19 @@ def submitted():
         targetBehavior=request.form['targetBehavior']
         homeSchoolGoal=request.form['homeSchoolGoal']
         actionPlans=request.form.getlist('actionPlan')
-        goalRangeTeacher=request.form['goalRangeTeacher']
+        goalRange=None
+        if session['role'] == 'Teacher':
+            goalRange = request.form.getlist('goalRangeTeacher')
+        else:
+            goalRange = request.form.getlist('goalRangeParent')
         if firstName=='' or lastName=='' or targetBehavior=='' or homeSchoolGoal=='' or actionPlans==None:
             #return render_template('addentry.html', message="*Please fill out required fields*")
+            flash("Must fill out all fields")
             return redirect(url_for('addentry'))
         else:
             print(actionPlans)
-            entry = Entry(1, 2, 3, actionPlans)
+            print(goalRange)
+            entry = Entry()
             return render_template('submitted.html')
 
 @app.route('/hello')

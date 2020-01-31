@@ -3,7 +3,7 @@ from manage import db, app
 class User(db.Model):
     __tablename__ = 'User'
     #uid = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    userid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    userid = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     firstName = db.Column(db.String(80), nullable=False)
     lastName = db.Column(db.String(80), nullable=False)
     childFirstName = db.Column(db.String(80), nullable=False)
@@ -13,9 +13,8 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
 
     entries = db.relationship('Entry', backref='User', lazy=True)
-    
-    def __init__(self, userid=None, firstName=None, lastName=None, childFirstName=None, childLastName=None, userRole=None, email=None, password=None):
-        self.userid=userid
+
+    def __init__(self, firstName=None, lastName=None, childFirstName=None, childLastName=None, userRole=None, email=None, password=None):
         self.firstName=firstName
         self.lastName=lastName
         self.childFirstName=childFirstName
@@ -30,8 +29,8 @@ class User(db.Model):
                 self.childFirstName, self.childLastName, self.userRole, self.email, self.password)
 
 class Entry(db.Model):
-    entryid = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.userid'))
+    entryid = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.userid'))
     target_behavior = db.Column(db.String(255), nullable=False)
     home_school_goal = db.Column(db.String(255), nullable=False)
     action_plan_one = db.Column(db.String(255), nullable=False)
@@ -39,11 +38,7 @@ class Entry(db.Model):
     action_plan_three = db.Column(db.String(255))
     action_plan_four = db.Column(db.String(255))
     action_plan_five = db.Column(db.String(255))
-    action_plan_one_rating = db.Column(db.Integer(), nullable=False)
-    action_plan_two_rating = db.Column(db.Integer())
-    action_plan_three_rating = db.Column(db.Integer())
-    action_plan_four_rating = db.Column(db.Integer())
-    action_plan_five_rating = db.Column(db.Integer())
+    goal_rating = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date())
 '''
 class Entry(db.Model):
