@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}read data{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{url_for('static', filename='landing.css')}}">
+{% endblock %}
+{% block content %}
+<div class="container shadow p-3 mb-5 bg-white rounded">
+    <div class="row justify-content-center">
+        <div class="card-deck">
+            <div class="card mb-3">
+                <img class="card-img-top img-responsive" src="static/notesmall.png" alt="notes" style="width:10em; height:10em;">
+                <div class="card-body">
+                    <h5 class="card-title">Home/School Notes</h5>
+                    <p class="card-text">Enter a day of data</p>
+                    <a href="#" class="btn btn-primary btn-block stretched-link">Go</a>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <img class="card-img-top" src="static/videosmall.png" alt="notes" style="width:10em; height:10em;">
+                <div class="card-body">
+                    <h5 class="card-title">Training Videos</h5>
+                    <p class="card-text">Watch the Parent/Teacher communication videos</p>
+                    <a href="#" class="btn btn-primary btn-block stretched-link">Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

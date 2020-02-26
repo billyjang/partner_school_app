@@ -1,0 +1,18 @@
+.card-img-top {
+    width: 100%;
+    height: 25vw;
+    object-fit: cover;
+    margin:0 auto;
+}
+.card-deck {
+    position: relative;
+    padding-top: 50px;
+    padding-bottom: 10px;
+}
+.btn {
+    bottom: 0;
+}
+
+.container {
+    padding-top: 25px;
+}

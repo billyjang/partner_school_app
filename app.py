@@ -86,7 +86,11 @@ def newaccountsuccess():
     else:
         # TODO: CHANGE THIS
         return render_template('newaccountsuccess.html')
-    
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
+
 # adding entry and viewing data
 @app.route('/addentry') # add required message here?
 def addentry():
