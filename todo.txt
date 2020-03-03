@@ -1,0 +1,3 @@
+finish making db changes
+migrate prelim version
+then work on front end. essentially disconnect db for a bit

@@ -1,0 +1,202 @@
+{% extends "layout.html" %}
+{% block title %}Admin Landing{% endblock %}
+{% block head %}
+{{ super() }}
+<script>
+
+    $(document).ready(function () {
+        console.log("heloo");
+        let data = JSON.parse('{{data|tojson|safe}}');
+        //console.log(data);
+        createTabs(data);
+        createTabContent(data);
+    });
+
+    function createTabs(data) {
+        let divTabs = document.getElementById('list-tab')
+        let tabHTML = "";
+        let counter = 0;
+        for (let row of data) {
+            let tab_id = "list-" + row.userID + "-list"
+            tabHTML += `<a class="list-group-item list-group-item-action` + (counter == 0 ? " active\" " : "\" ")
+                + `id="${tab_id}" data-toggle="list" href="#list-user-${row.userID}" role="tab" aria-controls="${row.userID}"> User ${row.userID} </a>\n`;
+            console.log(tabHTML);
+            counter = counter + 1;
+        }
+        divTabs.innerHTML = tabHTML;
+    }
+
+    function createTabContent(data) {
+        let divTabContent = document.getElementById('nav-tabContent');
+        let tabContentHTML = "";
+        let counter = 0;
+        console.log(data);
+        for (let row of data) {
+            let aps = row.actionPlans;
+            let apsLength = row.actionPlans.length;
+            let rowId = row.userID;
+            console.log("!!!!!!!!!");
+            console.log(rowId);
+            let tabContentId = "list-user-" + rowId;
+            let tabContentAriaLabel = "list-" + rowId + "-list";
+            let baseActionPlanId = "actionplan-" + rowId + "-";
+
+            tabContentHTML += `<div class="tab-pane fade show` + (counter == 0 ? " active\" " : "\" ")
+                + `id="${tabContentId}" role="tabpanel" aria-labelledby="${tabContentAriaLabel}">\n`;
+            tabContentHTML += `<form action="{{ url_for('adminpost') }}" method="POST">\n`;
+            let apCounter;
+            for(apCounter = 1; apCounter <= 3; apCounter += 1) {
+                let apId = baseActionPlanId + `${apCounter}`;
+                tabContentHTML += `<div class="row justify-content-center">\n`;
+                tabContentHTML += `<div class="col-md-10">\n`;
+                tabContentHTML += `<label for="${apId}"> ` + `Step ${apCounter} in the action plan` + `</label>\n`;
+                tabContentHTML += `<input type="text" class="form-control" id="${apId}" name="${apId}">\n`;
+                tabContentHTML += `</div>\n`;
+                tabContentHTML += `</div>\n`;
+            }
+            tabContentHTML += `<div class="row justify-content-center">\n`;
+            tabContentHTML += `<div class="col-md-8 button-container">\n`;
+            tabContentHTML += `<button class="btn btn-primary btn-block" id="actionPlan-btn-${rowId}" type="submit">Save</button>\n`;
+            tabContentHTML += `</div>\n`;
+            tabContentHTML += `</div>\n`;
+            tabContentHTML += `</form>\n`;
+            tabContentHTML += `</div>\n`;
+            counter = counter + 1;
+
+        }
+        divTabContent.innerHTML = tabContentHTML;
+        console.log(tabContentHTML);
+    }
+</script>
+<link rel="stylesheet" href="{{url_for('static', filename='adminentry.css')}}">
+{% endblock %}
+{% block content %}
+
+<!-- TODO: figuring out ids + submit -->
+
+<div class="container shadow p-3 mb-5 bg-white rounded">
+    <div class="row">
+        <div class="col-4">
+            <div class="list-group" id="list-tab" role="tablist">
+                <!--
+                <a class="list-group-item list-group-item-action active" id="list-1-list" data-toggle="list"
+                    href="#list-user-1" role="tab" aria-controls="1">User 1</a>
+                <a class="list-group-item list-group-item-action" id="list-2-list" data-toggle="list"
+                    href="#list-user-2" role="tab" aria-controls="2">User 2</a>
+                <a class="list-group-item list-group-item-action" id="list-2-list" data-toggle="list"
+                    href="#list-user-3" role="tab" aria-controls="3">User 3</a>
+                -->
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="nav-tabContent">
+                <!--
+                <div class="tab-pane fade show active" id="list-user-1" role="tabpanel" aria-labelledby="list-1-list">
+                    <form action="{{ url_for('adminpost') }}" method="POST">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10">
+                                <label for="actionplan-1-1">Step 1 in the action plan</label>
+                                <input type="text" class="form-control" id="actionPlan-1-1" name="actionPlan-1-1">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-10">
+                                <label for="actionplan-1-2">Step 2 in the action plan</label>
+                                <input type="text" class="form-control" id="actionPlan-1-2" name="actionPlan-1-2">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <a class="btn btn-primary btn-block" href="#" id="actionPlan-btn-1"
+                                    role="button">Link</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="list-user-2" role="tabpanel" aria-labelledby="list-2-list">
+                    <form action="{{ url_for('adminpost') }}" method="POST">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10">
+                                <label for="actionplan-2-1">Step 1 in the action plan</label>
+                                <input type="text" class="form-control" id="actionPlan-2-1" name="actionPlan-2-1">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-10">
+                                <label for="actionplan-2-2">Step 2 in the action plan</label>
+                                <input type="text" class="form-control" id="actionPlan-2-2" name="actionPlan-2-2">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <a class="btn btn-primary btn-block" href="#" id="actionPlan-btn-2"
+                                    role="button">Link</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <p id="result">?</p>
+</div>
+
+<script>
+    $(document).on('submit', 'form', function(e) {
+        e.preventDefault();
+        //alert('heyoooo');
+        var form = this;
+        console.log(form);
+        $.ajax({
+            method: 'POST',
+            url: {{ url_for('adminpost') | tojson }},
+            data: $(this).serialize()
+        }).done(showSuccess);
+    });
+
+    function showSuccess(data) {
+        console.log(data);
+        $('#result').text(data);
+    }
+    /*
+    $(document).on('click', 'a[role="button"]', function(e) {
+        alert($(e.target).attr('id'));
+    });
+    
+    $('a[role="button"]').click(function (e) {
+        alert("hey!");
+        var atext = $(e.target).attr('id');
+        console.log(atext);
+    });
+    */
+    /*
+    $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr('href');
+        console.log("new: " + target);
+    });
+    $('a[data-toggle="list"]').on('hidden.bs.tab', function (e) {
+        var target = $(e.target).attr('href');
+        var content = $('.tab-content').find(target).find('form')
+        //var serialized_data = $(e.target).find('form')
+
+        $.ajax({
+            method: 'POST',
+            url: {{ url_for('adminpost')| tojson }},
+            data: content.serialize()
+        }).done(addShow);
+
+        console.log("old: " + content);
+    });
+
+    function addShow(data) {
+        console.log(data);
+        $('#result').text(data);
+    }
+    */
+   // Get the input box
+</script>
+{% endblock %}

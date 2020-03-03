@@ -12,6 +12,10 @@ label {
     padding-bottom: 25px;
 }
 
+.row {
+  padding-bottom: 15px;
+}
+
 input[type="text"],
 select.form-control {
   background: transparent;

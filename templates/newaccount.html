@@ -25,23 +25,19 @@
                 <h1 class="h3 mb-3 font-weight-normal">Register account</h1>
                 <form action="{{ url_for('newaccountsuccess') }}" method="POST">
                     <div class="row justify-content-center">
-                        <div class="col-md-4">
-                            <label for="firstName">First Name</label>
-                            <input type="text" class="form-control" name="firstName" id="firstName">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" class="form-control" name="lastName" id="lastName">
+                        <div class="col-md-8">
+                            <label for="userID">User ID</label>
+                            <input type="text" class="form-control" name="userID" id="userID">
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-md-4">
-                            <label for="childFirstName">Child's First Name</label>
-                            <input type="text" class="form-control" name="childFirstName" id="childFirstName">
+                            <label for="targetBehavior">Target Behavior</label>
+                            <input type="text" class="form-control" name="targetBehavior" id="targetBehavior">
                         </div>
                         <div class="col-md-4">
-                            <label for="childLastName">Child's Last Name</label>
-                            <input type="text" class="form-control" name="childLastName" id="childLastName">
+                            <label for="homeSchoolGoal">Home/School Goal</label>
+                            <input type="text" class="form-control" name="homeSchoolGoal" id="homeSchoolGoal">
                         </div>
                     </div>
                     <div class="row justify-content-center">

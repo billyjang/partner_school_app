@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}Admin Landing{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{url_for('static', filename='adminlanding.css')}}">
+{% endblock %}
+{% block content %}
+<div class="container shadow p-3 mb-5 bg-white rounded">
+    <div class="row justify-content-center">
+        <div class="card-deck">
+            <div class="card mb-3">
+                <img class="card-img-top img-responsive" src="static/notesmall.png" alt="notes" style="width:10em; height:10em;">
+                <div class="card-body">
+                    <h5 class="card-title">Add values for users</h5>
+                    <p class="card-text">Enter values that will be prefilled for users for data entry.</p>
+                    <a href="{{ url_for('adminentry') }}" class="btn btn-primary btn-block stretched-link">Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
