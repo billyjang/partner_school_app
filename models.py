@@ -9,9 +9,9 @@ class User(db.Model):
     targetBehavior = db.Column(db.String(255), nullable=False)
     homeSchoolGoal = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
-
+    
     entries = db.relationship('Entry', backref='User', lazy=True)
-    actionplans = db.relationship('ActionPlan', backref='User', lazy=True)
+    actionplans = db.relationship('ActionPlan', cascade="all, delete-orphan", backref='User', lazy=True)
 
     def __init__(self, idNum=None, userRole=None, password=None, targetBehavior=None, homeSchoolGoal=None, email=None):
         # TODO: if idNum is None, throw an exception so it can be handled with appropriately.
@@ -43,6 +43,14 @@ class ActionPlan(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('User.idNum'))
     stepName = db.Column(db.String(255))
     order = db.Column(db.Integer)
+
+    def serialize(self):
+        return {
+            'actionPlanId' : self.actionPlanId,
+            'userId' : self.userId,
+            'stepName' : self.stepName,
+            'order' : self.order
+        }
 
 class Entry(db.Model):
     __tablename__ = 'Entry'

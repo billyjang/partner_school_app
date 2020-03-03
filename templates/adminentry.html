@@ -45,12 +45,18 @@
                 + `id="${tabContentId}" role="tabpanel" aria-labelledby="${tabContentAriaLabel}">\n`;
             tabContentHTML += `<form action="{{ url_for('adminpost') }}" method="POST">\n`;
             let apCounter;
-            for(apCounter = 1; apCounter <= 3; apCounter += 1) {
+            for(apCounter = 1; apCounter <= 5; apCounter += 1) {
                 let apId = baseActionPlanId + `${apCounter}`;
                 tabContentHTML += `<div class="row justify-content-center">\n`;
                 tabContentHTML += `<div class="col-md-10">\n`;
                 tabContentHTML += `<label for="${apId}"> ` + `Step ${apCounter} in the action plan` + `</label>\n`;
-                tabContentHTML += `<input type="text" class="form-control" id="${apId}" name="${apId}">\n`;
+                // TODO; put placeholder in here
+                // if counter < len ap: take ap[counter] and put that as placeholder
+                if(apCounter <= apsLength) {
+                    tabContentHTML += `<input type="text" class="form-control" id="${apId}" name="${apId}" value="${aps[apCounter-1]}">\n`;
+                } else {
+                    tabContentHTML += `<input type="text" class="form-control" id="${apId}" name="${apId}">\n`;
+                }
                 tabContentHTML += `</div>\n`;
                 tabContentHTML += `</div>\n`;
             }

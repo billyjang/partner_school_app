@@ -30,6 +30,7 @@ loggedIn=False
 # TODO: I don't think messages are happening
 # TODO: Fix xss vulnerabilities
 # TODO: PROPER COMPLAINING
+# TODO: cascade on database
 
 @app.route('/', methods=['GET','POST'])
 def home():
@@ -46,7 +47,7 @@ def home():
             if pwd_context.verify(password, verify_password):
                 print(matching_ids.with_entities(User.userRole).all()[0][0])
                 session['role'] = matching_ids.with_entities(User.userRole).all()[0][0]
-                return redirect(url_for('addentry'))
+                return redirect(url_for('landing'))
             else:
                 return redirect(url_for('home'))            
     else:
@@ -96,7 +97,9 @@ def landing():
 
 @app.route('/notecalendar')
 def notecalendar():
-    return render_template('notecalendar.html')
+    current_user = User.query.filter_by(idNum=session['userID']).all()[0]
+    entry_data = {'date' : [e.date for e in current_user.entries]}
+    return render_template('notecalendar.html', data=entry_data)
 
 # TODO: There is an ordering that must be followed--does something break if Gazi doesn't enter in the values in time first?
 
@@ -110,7 +113,7 @@ def addentry():
             current_user = User.query.filter_by(idNum=session['userID']).all()[0]
             #return render_template('addentry.html', data=session.get('role', None)
             user_data = {'userID' : current_user.idNum, 'role' : current_user.userRole, 'targetBehavior' : current_user.targetBehavior,
-                        'homeSchoolGoal' : current_user.homeSchoolGoal}
+                        'homeSchoolGoal' : current_user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in current_user.actionplans]}
             return render_template('addentry.html', data=user_data)
     except:
         return "To fill in later. Redirect to login."
@@ -123,6 +126,9 @@ def submitted():
         targetBehavior=request.form['targetBehavior']
         homeSchoolGoal=request.form['homeSchoolGoal']
         actionPlans=request.form.getlist('actionPlan')
+        print('hey')
+        print(actionPlans)
+        # TEMP FIX
         goalRange=None
         if session['role'] == 'Teacher':
             goalRange = request.form['goalRangeTeacher']
@@ -132,8 +138,8 @@ def submitted():
         print(goalRange)
         print(targetBehavior)
         print(homeSchoolGoal)
-        print(actionPlans)
-        if userID=='' or goalRange==None or targetBehavior=='' or homeSchoolGoal=='' or actionPlans==None:
+        #print(actionPlans)
+        if userID=='' or goalRange==None or targetBehavior=='' or homeSchoolGoal=='':
             #return render_template('addentry.html', message="*Please fill out required fields*")
             flash("Must fill out all fields")
             return redirect(url_for('addentry'))
@@ -143,6 +149,7 @@ def submitted():
             mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
             new_entry = Entry(user_id=current_user.idNum, goal_rating=mapping[goalRange], date=date)
             # TODO: more elegant way to do this. FOR TESTING PURPOSES ONLY
+            
             new_entry.action_plan_one = actionPlans[0]
             if(len(actionPlans) > 1):
                 new_entry.action_plan_two = actionPlans[1]
@@ -152,6 +159,7 @@ def submitted():
                 new_entry.action_plan_four = actionPlans[3]
             if(len(actionPlans) > 4):
                 new_entry.action_plan_five = actionPlans[4]
+            
             current_user.entries.append(new_entry)
             db.session.add(new_entry)
             db.session.add(current_user)
@@ -165,7 +173,9 @@ def readdata():
             current_user = User.query.filter_by(idNum=session['userID']).all()[0]
             all_entries = current_user.entries
             table_data = json.dumps([entry.serialize() for entry in all_entries])
-            return render_template('readdata.html', data=table_data)
+            # TODO: IF targetbehavior fixed, have to change this
+            targetBehavior = {'targetBehavior' : current_user.targetBehavior}
+            return render_template('readdata.html', data=table_data, behavior=targetBehavior)
     except KeyError:
         return "To fill in later. Redirect to login."
 
@@ -189,13 +199,27 @@ def adminentry():
     all_users = User.query.all()
     all_data = []
     for user in all_users:
-        user_entry = {'userID' : user.idNum, 'actionPlans' : user.actionplans}
+        user_entry = {'userID' : user.idNum, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
         all_data.append(user_entry)
     return render_template('adminentry.html', data=all_data)
 
 @app.route('/adminpost', methods=["POST"])
 def adminpost():
-    #actionPlan = request.form['actionPlan1']
-    #print(actionPlan)
-    #return redirect(url_for('adminentry'))
+    req_action_plan = request.form.to_dict()
+    req_action_plan_keys = list(req_action_plan.keys())
+    userId = req_action_plan_keys[0].split("-")[1]
+    current_user = User.query.filter_by(idNum=userId).all()[0]
+
+    new_aps = []
+    for i in range(len(req_action_plan)):
+        if req_action_plan[req_action_plan_keys[i]] == "":
+            continue
+        new_ap = ActionPlan(order=i, stepName=req_action_plan[req_action_plan_keys[i]])
+        new_aps.append(new_ap)
+        db.session.add(new_ap)
+
+    current_user.actionplans=new_aps
+    db.session.add(current_user)
+    db.session.commit()
+    #current_action_plans = [action_plan[key] for key in action_plan_keys]
     return "success"

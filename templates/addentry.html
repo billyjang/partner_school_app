@@ -5,6 +5,7 @@
     <link href="{{ (url_for('static', filename='addentry.css') )}}" rel="stylesheet">
 
     <script>
+        /*
         function appendActionPlan() {
             let oldActionPlanEntry = $(".actionPlanEntry").last();
             let newActionPlanEntry = oldActionPlanEntry.clone();
@@ -23,12 +24,39 @@
                 newLabel.text('Action Plan # ' + idnum)
                 newActionPlanEntry.show();
             }
-        }
+        }*/
+
+        function createActionPlans(data) {
+            actionPlanEntries = document.getElementById('actionPlanEntries');
+            entryHTML = "";
+            aps = data.actionPlans;
+            aps_len = aps.length
+            let counter = 1;
+            if(aps_len == 0) {
+                entryHTML += `<div class="row justify-content-center">\n`;
+                entryHTML += `<div class="col-md-8">\n`;
+                entryHTML += `<p> No action plans set yet! </p>`;
+                entryHTML += `</div>\n`;
+                entryHTML += `</div>\n`;
+            } else {
+                for(let ap of aps) {
+                    entryHTML += `<div class="row justify-content-center">\n`;
+                    entryHTML += `<div class="col-md-8">\n`;
+                    entryHTML += `<label for="actionPlan"> Action plan step ${counter}</label>\n`;
+                    entryHTML += `<input type="text" class="form-control" id="actionPlan" name="actionPlan" value="${aps[counter-1]}" readonly="readonly" required>\n`
+                    entryHTML += `</div>\n`;
+                    entryHTML += `</div>\n`;
+                    counter += 1;
+                }           
+            }
+            actionPlanEntries.innerHTML = entryHTML;
+        };
 
         $( document ).ready(function() {
             console.log("heloo");
             let data = JSON.parse('{{data|tojson|safe}}');
             let today = new Date().toISOString().substr(0,10);
+            console.log(data);
             $( '#userID' ).attr("value", data.userID);
             $( '#date' ).attr("value", today);
             $( '#targetBehavior' ).attr("value", data.targetBehavior);
@@ -40,6 +68,7 @@
             } else {
                 console.log("neither hit");
             }
+            createActionPlans(data);
         })
     </script>
 {% endblock %}
@@ -91,7 +120,11 @@
                         <h3>Action Plans</h3>
                     </div>
                 </div>
-                <div class="actionPlanEntry" id="ape1">
+                <div class="actionPlanEntries" id="actionPlanEntries">
+                    <p>sdlkfj</p>
+                </div>
+                <!--
+                <div class="actionPlanEntry">
                     <div class="row justify-content-center">
                         <div class="col-md-8">
                             <label for="actionPlan">Action plan # 1</label>
@@ -99,12 +132,15 @@
                         </div>
                     </div>
                 </div>
+                -->
             </div>
+            <!--
             <div class="row justify-content-center" id="addAPButton">
                 <span class="border">
                     <button class="btn btn-light" onclick="appendActionPlan()" type="button">Enter another action plan</button>
                 </span>
             </div>
+            -->
             <div class="goalRange">
                 <div class="teacher-eval">
                     <div class="row justify-content-center">

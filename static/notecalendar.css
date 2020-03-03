@@ -1,3 +1,4 @@
+/*
 ul.timeline {
     list-style-type: none;
     position: relative;
@@ -39,4 +40,8 @@ ul.timeline > li:before {
     width: 20px;
     height: 20px;
     z-index: 400;
+}
+*/
+a {
+    padding-right: 10em;
 }
