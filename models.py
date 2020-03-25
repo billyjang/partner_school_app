@@ -1,26 +1,35 @@
 from manage import db, app
 
+# 1: move the field
+# 2: change the database
+# 3: debug
+# 4: notifications
+# 5: something quick for the new landing page
+# 6: profit
+
 class User(db.Model):
     __tablename__ = 'User'
     #uid = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNum = db.Column(db.Integer, primary_key=True, autoincrement=False, unique=True)
+    id = db.Column(db.String(255), primary_key=True, autoincrement=False, unique=True)
     userRole = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     targetBehavior = db.Column(db.String(255), nullable=False)
     homeSchoolGoal = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
-    
+    phoneNumber = db.Column(db.String(80), nullable=True)
+
     entries = db.relationship('Entry', backref='User', lazy=True)
     actionplans = db.relationship('ActionPlan', cascade="all, delete-orphan", backref='User', lazy=True)
 
-    def __init__(self, idNum=None, userRole=None, password=None, targetBehavior=None, homeSchoolGoal=None, email=None):
+    def __init__(self, id=None, userRole=None, password=None, targetBehavior=None, homeSchoolGoal=None, email=None, phoneNumber=None):
         # TODO: if idNum is None, throw an exception so it can be handled with appropriately.
-        self.idNum=idNum
+        self.id=id
         self.userRole=userRole
         self.password=password
         self.targetBehavior=targetBehavior
         self.homeSchoolGoal=homeSchoolGoal
         self.email=email
+        self.phoneNumber=phoneNumber
     
     def serialize(self):
         return {
@@ -39,8 +48,8 @@ class User(db.Model):
 
 class ActionPlan(db.Model):
     __tablename__ = 'ActionPlan'
-    actionPlanId = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    userId = db.Column(db.Integer, db.ForeignKey('User.idNum'))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    userId = db.Column(db.String(255), db.ForeignKey('User.id'))
     stepName = db.Column(db.String(255))
     order = db.Column(db.Integer)
 
@@ -54,14 +63,16 @@ class ActionPlan(db.Model):
 
 class Entry(db.Model):
     __tablename__ = 'Entry'
-    entryid = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.idNum'))
-    action_plan_one = db.Column(db.String(255), nullable=False)
-    action_plan_two = db.Column(db.String(255))
-    action_plan_three = db.Column(db.String(255))
-    action_plan_four = db.Column(db.String(255))
-    action_plan_five = db.Column(db.String(255))
-    goal_rating = db.Column(db.Integer(), nullable=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    userId = db.Column(db.String(255), db.ForeignKey('User.id'))
+    actionPlanOne = db.Column(db.String(255), nullable=False)
+    actionPlanTwo = db.Column(db.String(255))
+    actionPlanThree = db.Column(db.String(255))
+    actionPlanFour = db.Column(db.String(255))
+    actionPlanFive = db.Column(db.String(255))
+    targetBehavior = db.Column(db.String(255), nullable=False)
+    homeSchoolGoal = db.Column(db.String(255), nullable=False)
+    goalRating = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date())
 
     def serialize(self):

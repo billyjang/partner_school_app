@@ -26,10 +26,11 @@
                 <form action="{{ url_for('newaccountsuccess') }}" method="POST">
                     <div class="row justify-content-center">
                         <div class="col-md-8">
-                            <label for="userID">User ID</label>
-                            <input type="text" class="form-control" name="userID" id="userID">
+                            <label for="userId">User ID</label>
+                            <input type="text" class="form-control" name="userId" id="userId">
                         </div>
                     </div>
+                    <!--
                     <div class="row justify-content-center">
                         <div class="col-md-4">
                             <label for="targetBehavior">Target Behavior</label>
@@ -40,6 +41,7 @@
                             <input type="text" class="form-control" name="homeSchoolGoal" id="homeSchoolGoal">
                         </div>
                     </div>
+                    -->
                     <div class="row justify-content-center">
                         <div class="col-md-4">
                             <label for="userRole">Role</label>
@@ -61,6 +63,15 @@
                         <div class="col-md-4">
                             <label for="passwordAgain">Password again</label>
                             <input type="text" class="form-control" name="passwordAgain" id="passwordAgain">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-4">
+                            <label for="phone-number">Phone Number</label>
+                            <input type="text" pattern="^\d{3}-\d{3}-\d{4}$" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="xxx-xxx-xxxx">
+                        </div>
+                        <div class="col-md-4">
+
                         </div>
                     </div>
                     <div class="row justify-content-center">

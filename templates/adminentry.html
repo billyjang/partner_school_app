@@ -35,11 +35,16 @@
             let aps = row.actionPlans;
             let apsLength = row.actionPlans.length;
             let rowId = row.userID;
+            let rowTargetBehavior = row.targetBehavior;
+            let rowHomeSchoolGoal = row.homeSchoolGoal;
             console.log("!!!!!!!!!");
             console.log(rowId);
             let tabContentId = "list-user-" + rowId;
             let tabContentAriaLabel = "list-" + rowId + "-list";
             let baseActionPlanId = "actionplan-" + rowId + "-";
+            
+            let baseTargetBehavior = "targetBehavior-" + rowId + "-";
+            let baseHomeSchoolGoal = "homeSchoolGoal-" + rowId + "-";
 
             tabContentHTML += `<div class="tab-pane fade show` + (counter == 0 ? " active\" " : "\" ")
                 + `id="${tabContentId}" role="tabpanel" aria-labelledby="${tabContentAriaLabel}">\n`;
@@ -60,6 +65,21 @@
                 tabContentHTML += `</div>\n`;
                 tabContentHTML += `</div>\n`;
             }
+            let targetBehaviorId = baseTargetBehavior + `${counter}`;
+            let homeSchoolGoalId = baseHomeSchoolGoal + `${counter}`;
+
+            tabContentHTML += `<div class="row justify-content-center">\n`;
+            tabContentHTML += `<div class="col-md-10">\n`;
+            tabContentHTML += `<label for="${targetBehaviorId}"> Target Behavior </label>\n`;
+            tabContentHTML += `<input type="text" class="form-control" id="${targetBehaviorId}" name="${targetBehaviorId}" value="${rowTargetBehavior}">\n`;
+            tabContentHTML += `</div>`;
+            tabContentHTML += `</div>`;
+            tabContentHTML += `<div class="row justify-content-center">\n`;
+            tabContentHTML += `<div class="col-md-10">\n`;
+            tabContentHTML += `<label for="${homeSchoolGoalId}"> Home/School Goal </label>\n`;
+            tabContentHTML += `<input type="text" class="form-control" id="${homeSchoolGoalId}" name="${homeSchoolGoalId}" value="${rowHomeSchoolGoal}">\n`;
+            tabContentHTML += `</div>`;
+            tabContentHTML += `</div>`;
             tabContentHTML += `<div class="row justify-content-center">\n`;
             tabContentHTML += `<div class="col-md-8 button-container">\n`;
             tabContentHTML += `<button class="btn btn-primary btn-block" id="actionPlan-btn-${rowId}" type="submit">Save</button>\n`;

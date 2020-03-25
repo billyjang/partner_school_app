@@ -37,7 +37,7 @@ def home():
     if request.method=='POST':
         session.pop('userID', None)
         userID = request.form['userID']
-        matching_ids = User.query.filter_by(idNum=userID)
+        matching_ids = User.query.filter_by(id=userID)
         if matching_ids.count() != 1:
             return redirect(url_for('home'))
         else:
@@ -72,15 +72,19 @@ def newaccountsuccess():
             flash('Passwords must match')
             return redirect(url_for('newaccount'))
         email=request.form['email']
-        userID = request.form['userID']
+        userID = request.form['userId']
         userRole = request.form['userRole']
-        targetBehavior=request.form['targetBehavior']
-        homeSchoolGoal=request.form['homeSchoolGoal']
+        phoneNumber = request.form['phoneNumber']
+        #targetBehavior=request.form['targetBehavior']
+        #homeSchoolGoal=request.form['homeSchoolGoal']
+        targetBehavior="Not set"
+        homeSchoolGoal="Not set"
         # TODO: check if passwords are the same in javascript or jquery
         password = request.form['password']
         hashed = pwd_context.hash(password)
         try:
-            new_user = User(userID,userRole, hashed, targetBehavior, homeSchoolGoal,email)
+            #new_user = User(userID,userRole, hashed, targetBehavior, homeSchoolGoal,email)
+            new_user = User(userID, userRole, hashed, targetBehavior, homeSchoolGoal, email, phoneNumber)
             db.session.add(new_user)
             db.session.commit()
             return render_template('newaccountsuccess.html')
@@ -97,7 +101,7 @@ def landing():
 
 @app.route('/notecalendar')
 def notecalendar():
-    current_user = User.query.filter_by(idNum=session['userID']).all()[0]
+    current_user = User.query.filter_by(id=session['userID']).all()[0]
     entry_data = {'date' : [e.date for e in current_user.entries]}
     return render_template('notecalendar.html', data=entry_data)
 
@@ -110,9 +114,9 @@ def addentry():
         if session['userID'] != None:
             print(session.get('userID'))
             print(session.get('role'))
-            current_user = User.query.filter_by(idNum=session['userID']).all()[0]
+            current_user = User.query.filter_by(id=session['userID']).all()[0]
             #return render_template('addentry.html', data=session.get('role', None)
-            user_data = {'userID' : current_user.idNum, 'role' : current_user.userRole, 'targetBehavior' : current_user.targetBehavior,
+            user_data = {'userID' : current_user.id, 'role' : current_user.userRole, 'targetBehavior' : current_user.targetBehavior,
                         'homeSchoolGoal' : current_user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in current_user.actionplans]}
             return render_template('addentry.html', data=user_data)
     except:
@@ -145,7 +149,7 @@ def submitted():
             return redirect(url_for('addentry'))
         else:
             print(date)
-            current_user = User.query.filter_by(idNum=session['userID']).all()[0]
+            current_user = User.query.filter_by(id=session['userID']).all()[0]
             mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
             new_entry = Entry(user_id=current_user.idNum, goal_rating=mapping[goalRange], date=date)
             # TODO: more elegant way to do this. FOR TESTING PURPOSES ONLY
@@ -170,7 +174,7 @@ def submitted():
 def readdata():
     try:
         if session['userID'] != None:
-            current_user = User.query.filter_by(idNum=session['userID']).all()[0]
+            current_user = User.query.filter_by(id=session['userID']).all()[0]
             all_entries = current_user.entries
             table_data = json.dumps([entry.serialize() for entry in all_entries])
             # TODO: IF targetbehavior fixed, have to change this
@@ -194,30 +198,38 @@ def adminlanding():
     return render_template('adminlanding.html')
 
 # TODO: finish these after config the db again
+# TODO: no data yet.
+
 @app.route('/adminentry')
 def adminentry():
     all_users = User.query.all()
     all_data = []
     for user in all_users:
-        user_entry = {'userID' : user.idNum, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
+        user_entry = {'userID' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
         all_data.append(user_entry)
     return render_template('adminentry.html', data=all_data)
 
 @app.route('/adminpost', methods=["POST"])
 def adminpost():
-    req_action_plan = request.form.to_dict()
-    req_action_plan_keys = list(req_action_plan.keys())
-    userId = req_action_plan_keys[0].split("-")[1]
-    current_user = User.query.filter_by(idNum=userId).all()[0]
-
+    req = request.form.to_dict()
+    req_keys = list(req.keys())
+    #req_action_plan = request.form.to_dict()
+    #req_action_plan_keys = list(req_action_plan.keys())
+    print(req)
+    userId = req_keys[0].split("-")[1]
+    current_user = User.query.filter_by(id=userId).all()[0]
+    # todo: add targetbehavior and homeschoolgoal
     new_aps = []
-    for i in range(len(req_action_plan)):
-        if req_action_plan[req_action_plan_keys[i]] == "":
+    for i in range(5):
+        if req[req_keys[i]] == "":
             continue
-        new_ap = ActionPlan(order=i, stepName=req_action_plan[req_action_plan_keys[i]])
+        new_ap = ActionPlan(order=i, stepName=req[req_keys[i]])
         new_aps.append(new_ap)
         db.session.add(new_ap)
 
+    current_user.targetBehavior=req[req_keys[5]]
+    current_user.homeSchoolGoal=req[req_keys[6]]
+    
     current_user.actionplans=new_aps
     db.session.add(current_user)
     db.session.commit()
