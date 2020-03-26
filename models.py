@@ -44,7 +44,7 @@ class User(db.Model):
         # TODO: might want to get rid of password in repr
         #return "<User(userid={}, firstName={}, lastName={}, childFirstName={}, childLastName={}, userRole={}, email={}, password={})>".format(self.userid, self.firstName, self.lastName,
         #        self.childFirstName, self.childLastName, self.userRole, self.email, self.password)
-        return "<User(idNum={}, userRole={})>".format(self.idNum, self.userRole)
+        return "<User(id={}, userRole={})>".format(self.id, self.userRole)
 
 class ActionPlan(db.Model):
     __tablename__ = 'ActionPlan'
@@ -76,20 +76,20 @@ class Entry(db.Model):
     date = db.Column(db.Date())
 
     def serialize(self):
-        action_plans = [self.action_plan_one]
-        if self.action_plan_two != None:
-            action_plans.append(self.action_plan_two)
-        if self.action_plan_three != None:
-            action_plans.append(self.action_plan_three)
-        if self.action_plan_four != None:
-            action_plans.append(self.action_plan_four)
-        if self.action_plan_five != None:
-            action_plans.append(self.action_plan_five)
+        action_plans = [self.actionPlanOne]
+        if self.actionPlanTwo != None:
+            action_plans.append(self.actionPlanTwo)
+        if self.actionPlanThree != None:
+            action_plans.append(self.actionPlanThree)
+        if self.actionPlanFour != None:
+            action_plans.append(self.actionPlanFour)
+        if self.actionPlanFive != None:
+            action_plans.append(self.actionPlanFive)
         return {
             'date':self.date.isoformat(),
             'action_plans':action_plans,
-            'goal_rating':self.goal_rating,
-            'user_id':self.user_id
+            'goal_rating':self.goalRating,
+            'user_id':self.userId
         }
 '''
 class Entry(db.Model):
