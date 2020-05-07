@@ -7,6 +7,13 @@
 {% block content %}
 <div class="container shadow p-3 mb-5 bg-white rounded">
     <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h2>Welcome to Partners in School</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
         <div class="card-deck">
             <div class="card mb-3">
                 <img class="card-img-top img-responsive" src="static/notesmall.png" alt="notes" style="width:10em; height:10em;">
@@ -25,7 +32,13 @@
                     <a href="#" class="btn btn-primary btn-block stretched-link">Go</a>
                 </div>
             </div>
-            
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <a href="{{url_for('contactus')}}" class="btn btn-primary">Contact Us</a>
+            </div>
         </div>
     </div>
 </div>

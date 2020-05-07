@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}Admin Landing{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container shadow p-3 mb-5 bg-white rounded">
+    <form action="{{ url_for('notificationsent') }}" method="POST">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <label for="message">Enter your message here.</label>
+                <textarea type="text" class="form-control" id="message" name="message" rows=3></textarea>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <button class="btn btn-dark" type="submit">Submit data</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

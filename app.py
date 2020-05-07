@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from crypt import pwd_context
 import json
 import os
+from twilio.rest import Client
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
@@ -36,6 +37,7 @@ loggedIn=False
 # TODO: Fix xss vulnerabilities
 # TODO: PROPER COMPLAINING
 # TODO: cascade on database
+# TODO: access control
 
 @app.route('/', methods=['GET','POST'])
 def home():
@@ -65,20 +67,11 @@ def forgotpassword():
 @app.route('/forgotnotificationsent', methods=["POST"])
 def forgotnotificationsent():
     userId = request.form['userId']
-    message = Mail(
-        from_email = 'wjang20@amherst.edu',
-        to_emails='billyjang7@gmail.com',
-        subject = 'Forgotten password',
-        html_content = '<strong>' + userId + ' has forgotten their password.</strong>'
-    )
-    try:
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e)
+    admin_email = 'gfa2111@cumc.columbia.edu'
+    from_email = 'wjang20@amherst.edu'
+    subject = 'Forgotten Password'
+    message_body = userId + ' has forgotten their password.'
+    send_email(admin_email, from_email, subject, message_body)
     return render_template('forgotpasswordsuccess.html')
 
 @app.route('/forgotpasswordsuccess')
@@ -131,6 +124,18 @@ def newaccountsuccess():
 def landing():
     return render_template('landing.html')
 
+@app.route('/contactus')
+def contactus():
+    return render_template('contactus.html')
+
+@app.route('/contactussent', methods=["POST"])
+def contactussent():
+    body = request.form['message']
+    current_user = User.query.filter_by(id=session['userID']).all()[0]
+    from_email = current_user.email[0]
+    send_email('gfa2111@cumc.columbia.edu', from_email, 'Contact request', body)
+    return "success"
+    
 @app.route('/notecalendar')
 def notecalendar():
     current_user = User.query.filter_by(id=session['userID']).all()[0]
@@ -245,34 +250,84 @@ def adminnotifications():
 def notificationsent():
     message_type = request.form['message-type']
     body = request.form['message']
+    # TODO: Test emails more, and send one at a time.
     if message_type == "Email":
-        to_send_emails = []
+        all_emails = []
         if request.form['audience'] == 'All':
             all_emails = User.query.with_entities(User.email).all()
-            to_send_emails = [email[0] for email in all_emails]
-        elif request.form['audience'] == 'Subset':
-            pass
-        all_emails = User.query.all()
-        to_list = Personalization()
-        to_list.add_to(Email('billyjang7@gmail.com'))
-        to_list.add_to(Email('wjang20@amherst.edu'))
-        message = Mail(
-            from_email = 'wjang20@amherst.edu',
-            subject = 'Reminder',
-            html_content = '<strong>' + body + '</strong>'
-        )
-        message.add_personalization(to_list)
-        try:
-            sg = SendGridAPIClient(SENDGRID_API_KEY)
-            response = sg.send(message)
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(e)
+        elif request.form['audience'] == 'Parents':
+            all_emails = User.query.filter_by(userRole='Parent').with_entities(User.email).all()
+        elif request.form['audience'] == 'Teachers':
+            all_emails = User.query.filter_by(userRole='Teacher').with_entities(User.email).all()
+
+        to_send_emails = [email[0] for email in all_emails]
+        #send_email(to_send_emails, 'wjang20@amherst.edu', 'Reminder', body)
+        for to_email in to_send_emails:
+            send_email(to_email, 'wjang20@amherst.edu', 'Reminder', body)
     elif message_type == "SMS":
-        pass
+        #send_sms('+17153796650', body)
+        # MAKE THIS CLEANER
+        # test and do config vigs
+        all_sms = []
+        if request.form['audience'] == 'All':
+            all_sms = User.query.with_entities(User.phoneNumber).all()
+        elif request.form['audience'] == 'Parents':
+            all_sms = User.query.filter_by(userRole='Parent').with_entities(User.phoneNumber).all()
+        elif request.form['audience'] == 'Teachers':
+            all_sms = User.query.filter_by(userRole='Teacher').with_entities(User.phoneNumber).all()
+        
+        to_send_sms = [sms[0] for sms in all_sms]
+        for to_sms in to_send_sms:
+            send_sms(to_sms, body)
+    
     return render_template('notificationsentsuccess.html')
+'''
+def send_email(to_emails, from_email, subject, message_body):
+    to_list = Personalization()
+    for email in to_emails:
+        to_list.add_to(Email(email))
+    message = Mail(
+        from_email = from_email, 
+        subject = subject, 
+        html_content = '<strong>' + message_body + '</strong>'
+        )
+    message.add_personalization(to_list)
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e)
+'''
+def send_email(to_email, from_email, subject, message_body):
+    message = Mail(
+        from_email = from_email,
+        to_emails = to_email,
+        subject = subject,
+        html_content = '<strong>' + message_body + '</strong>'
+    )
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e)
+
+def send_sms(to_phone, body):
+    account_sid = 'AC0a28d8b2df04587f7e4ae71d4830c249'
+    auth_token = '734fbc7c2ebdfe63b5cd7de0deacae52'
+    client = Client(account_sid, auth_token)
+
+    message = client.messages \
+                .create(
+                     body=body,
+                     from_='+12018013260',
+                     to=to_phone
+                 )
 
 @app.route('/notificationsentsuccess')
 def notificationsentsuccess():
@@ -312,4 +367,4 @@ def adminpost():
     db.session.add(current_user)
     db.session.commit()
     #current_action_plans = [action_plan[key] for key in action_plan_keys]
-    return "success"
+    return "Information for User: " + current_user.id + " was saved successfully!"
