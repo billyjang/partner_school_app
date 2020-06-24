@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'super secret key'
 #sess.init_app(app)
+# TODO: HAVE TO CHANGE THE HEROKU STUFF TO WORK REGARDLESS. MOVING ENVIRONMENT VARIABLES
 # TODO: fix these to move onto heroku
 SENDGRID_API_KEY = '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'
 
@@ -132,9 +133,9 @@ def contactus():
 def contactussent():
     body = request.form['message']
     current_user = User.query.filter_by(id=session['userID']).all()[0]
-    from_email = current_user.email[0]
+    from_email = current_user.email
     send_email('gfa2111@cumc.columbia.edu', from_email, 'Contact request', body)
-    return "success"
+    return "Email Sent!"
     
 @app.route('/notecalendar')
 def notecalendar():
@@ -232,19 +233,28 @@ def logout():
 
 @app.route('/adminlanding')
 def adminlanding():
-    return render_template('adminlanding.html')
+    if authenticateAdmin(session['role']):    
+        return render_template('adminlanding.html')
+    else:
+        return "Access denied."
 
+ADMINROLE = "Admin"
+def authenticateAdmin(userRole):
+    return userRole == ADMINROLE
 # TODO: finish these after config the db again
 # TODO: no data yet.
 
 @app.route('/adminnotifications')
 def adminnotifications():
-    all_users = User.query.all()
-    all_data = []
-    for user in all_users:
-        user_entry = {'userId' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
-        all_data.append(user_entry)
-    return render_template('adminnotifications.html', data=all_data)
+    if authenticateAdmin(session['role']):
+        all_users = User.query.all()
+        all_data = []
+        for user in all_users:
+            user_entry = {'userId' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
+            all_data.append(user_entry)
+        return render_template('adminnotifications.html', data=all_data)
+    else:
+        return "Access denied."
 
 @app.route('/notificationsent', methods=["POST"])
 def notificationsent():
@@ -308,13 +318,17 @@ def send_email(to_email, from_email, subject, message_body):
         subject = subject,
         html_content = '<strong>' + message_body + '</strong>'
     )
+    print('init good')
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
+        print("sg")
         response = sg.send(message)
+        print("send")
         print(response.status_code)
         print(response.body)
         print(response.headers)
     except Exception as e:
+        print("exception hit")
         print(e)
 
 def send_sms(to_phone, body):
@@ -335,36 +349,42 @@ def notificationsentsuccess():
 
 @app.route('/adminentry')
 def adminentry():
-    all_users = User.query.all()
-    all_data = []
-    for user in all_users:
-        user_entry = {'userID' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
-        all_data.append(user_entry)
-    return render_template('adminentry.html', data=all_data)
+    if authenticateAdmin(session['role']):
+        all_users = User.query.all()
+        all_data = []
+        for user in all_users:
+            user_entry = {'userID' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
+            all_data.append(user_entry)
+        return render_template('adminentry.html', data=all_data)
+    else:
+        return "Access denied."
 
 @app.route('/adminpost', methods=["POST"])
 def adminpost():
-    req = request.form.to_dict()
-    req_keys = list(req.keys())
-    #req_action_plan = request.form.to_dict()
-    #req_action_plan_keys = list(req_action_plan.keys())
-    print(req)
-    userId = req_keys[0].split("-")[1]
-    current_user = User.query.filter_by(id=userId).all()[0]
-    # todo: add targetbehavior and homeschoolgoal
-    new_aps = []
-    for i in range(5):
-        if req[req_keys[i]] == "":
-            continue
-        new_ap = ActionPlan(order=i, stepName=req[req_keys[i]])
-        new_aps.append(new_ap)
-        db.session.add(new_ap)
+    if authenticateAdmin(session['role']):
+        req = request.form.to_dict()
+        req_keys = list(req.keys())
+        #req_action_plan = request.form.to_dict()
+        #req_action_plan_keys = list(req_action_plan.keys())
+        print(req)
+        userId = req_keys[0].split("-")[1]
+        current_user = User.query.filter_by(id=userId).all()[0]
+        # todo: add targetbehavior and homeschoolgoal
+        new_aps = []
+        for i in range(5):
+            if req[req_keys[i]] == "":
+                continue
+            new_ap = ActionPlan(order=i, stepName=req[req_keys[i]])
+            new_aps.append(new_ap)
+            db.session.add(new_ap)
 
-    current_user.targetBehavior=req[req_keys[5]]
-    current_user.homeSchoolGoal=req[req_keys[6]]
-    
-    current_user.actionplans=new_aps
-    db.session.add(current_user)
-    db.session.commit()
-    #current_action_plans = [action_plan[key] for key in action_plan_keys]
-    return "Information for User: " + current_user.id + " was saved successfully!"
+        current_user.targetBehavior=req[req_keys[5]]
+        current_user.homeSchoolGoal=req[req_keys[6]]
+        
+        current_user.actionplans=new_aps
+        db.session.add(current_user)
+        db.session.commit()
+        #current_action_plans = [action_plan[key] for key in action_plan_keys]
+        return "Information for User: " + current_user.id + " was saved successfully!"
+    else:
+        return "Access denied."
