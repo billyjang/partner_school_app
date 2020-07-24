@@ -22,7 +22,7 @@ app.secret_key = 'super secret key'
 # TODO: HAVE TO CHANGE THE HEROKU STUFF TO WORK REGARDLESS. MOVING ENVIRONMENT VARIABLES
 # TODO: fix these to move onto heroku
 SENDGRID_API_KEY = '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'
-ADMIN_EMAIL = 'billyjang7@gmail.com'
+ADMIN_EMAIL = 'gfa2111@cumc.columbia.edu'
 ADMINROLE = "Admin"
 
 db = SQLAlchemy(app)
@@ -158,13 +158,13 @@ def contactus():
         user = get_user(session['userID'])
         from_email = user.email
         send_email(ADMIN_EMAIL, from_email, 'Contact request', body)
-        return "Email Sent!"
+        return redirect(url_for('contactussuccess'))
     else:
         return render_template('contactus.html')
 
-@app.route('/contactussent')
-def contactussent():
-    return "Contact request successfully sent. Press back to go back to the landing page."
+@app.route('/contactussuccess')
+def contactussuccess():
+    return render_template('contactussuccess.html')
 
 #'gfa2111@cumc.columbia.edu'
 @app.route('/notecalendar')
