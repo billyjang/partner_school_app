@@ -22,26 +22,19 @@
                             {% endfor %}
                     {% endif %}
                 {% endwith %}
+
+                {% if error %}
+                <p class=error><strong>Error: {{ error }}</strong></p> 
+                {% endif %}
+                
                 <h1 class="h3 mb-3 font-weight-normal">Register account</h1>
-                <form action="{{ url_for('newaccountsuccess') }}" method="POST">
+                <form method="POST">
                     <div class="row justify-content-center">
                         <div class="col-md-8">
                             <label for="userId">User ID</label>
-                            <input type="text" class="form-control" name="userId" id="userId">
+                            <input type="text" class="form-control" name="userId" id="userId" required>
                         </div>
                     </div>
-                    <!--
-                    <div class="row justify-content-center">
-                        <div class="col-md-4">
-                            <label for="targetBehavior">Target Behavior</label>
-                            <input type="text" class="form-control" name="targetBehavior" id="targetBehavior">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="homeSchoolGoal">Home/School Goal</label>
-                            <input type="text" class="form-control" name="homeSchoolGoal" id="homeSchoolGoal">
-                        </div>
-                    </div>
-                    -->
                     <div class="row justify-content-center">
                         <div class="col-md-4">
                             <label for="userRole">Role</label>
@@ -52,26 +45,17 @@
                         </div>
                         <div class="col-md-4">
                             <label for="email">Email</label>
-                            <input type="text" class="form-control" name="email" id="email">
+                            <input type="text" class="form-control" name="email" id="email" required>
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-md-4">
                             <label for="password">Password</label>
-                            <input type="text" class="form-control" id="password" name="password">
+                            <input type="text" class="form-control" id="password" name="password" required>
                         </div>
-                        <div class="col-md-4">
-                            <label for="passwordAgain">Password again</label>
-                            <input type="text" class="form-control" name="passwordAgain" id="passwordAgain">
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
                         <div class="col-md-4">
                             <label for="phone-number">Phone Number</label>
-                            <input type="text" pattern="^\d{3}-\d{3}-\d{4}$" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="xxx-xxx-xxxx">
-                        </div>
-                        <div class="col-md-4">
-
+                            <input type="text" pattern="^\d{3}-\d{3}-\d{4}$" class="form-control" name="phoneNumber" id="phoneNumber" placeholder="xxx-xxx-xxxx" required>
                         </div>
                     </div>
                     <div class="row justify-content-center">

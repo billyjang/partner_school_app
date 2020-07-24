@@ -8,14 +8,14 @@ from manage import db, app
 # 6: profit
 
 class User(db.Model):
-    __tablename__ = 'User'
+    __tablename__ = "User"
     #uid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id = db.Column(db.String(255), primary_key=True, autoincrement=False, unique=True)
     userRole = db.Column(db.String(80), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    targetBehavior = db.Column(db.String(255), nullable=False)
-    homeSchoolGoal = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(1023), nullable=False)
+    targetBehavior = db.Column(db.String(1023), nullable=False)
+    homeSchoolGoal = db.Column(db.String(1023), nullable=False)
+    email = db.Column(db.String(1023), nullable=False)
     phoneNumber = db.Column(db.String(80), nullable=True)
 
     entries = db.relationship('Entry', backref='User', lazy=True)
@@ -47,10 +47,10 @@ class User(db.Model):
         return "<User(id={}, userRole={})>".format(self.id, self.userRole)
 
 class ActionPlan(db.Model):
-    __tablename__ = 'ActionPlan'
+    __tablename__ = "ActionPlan"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     userId = db.Column(db.String(255), db.ForeignKey('User.id'))
-    stepName = db.Column(db.String(255))
+    stepName = db.Column(db.String(1023))
     order = db.Column(db.Integer)
 
     def serialize(self):
@@ -62,18 +62,19 @@ class ActionPlan(db.Model):
         }
 
 class Entry(db.Model):
-    __tablename__ = 'Entry'
+    __tablename__ = "Entry"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     userId = db.Column(db.String(255), db.ForeignKey('User.id'))
-    actionPlanOne = db.Column(db.String(255), nullable=False)
-    actionPlanTwo = db.Column(db.String(255))
-    actionPlanThree = db.Column(db.String(255))
-    actionPlanFour = db.Column(db.String(255))
-    actionPlanFive = db.Column(db.String(255))
-    targetBehavior = db.Column(db.String(255), nullable=False)
-    homeSchoolGoal = db.Column(db.String(255), nullable=False)
+    actionPlanOne = db.Column(db.String(1023), nullable=False)
+    actionPlanTwo = db.Column(db.String(1023))
+    actionPlanThree = db.Column(db.String(1023))
+    actionPlanFour = db.Column(db.String(1023))
+    actionPlanFive = db.Column(db.String(1023))
+    targetBehavior = db.Column(db.String(1023), nullable=False)
+    homeSchoolGoal = db.Column(db.String(1023), nullable=False)
     goalRating = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date())
+    signature = db.Column(db.String(1023), nullable=False)
 
     def serialize(self):
         action_plans = [self.actionPlanOne]

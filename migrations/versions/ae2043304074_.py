@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 2ece0b0eb9e2
+Revision ID: ae2043304074
 Revises: 
-Create Date: 2020-03-25 02:15:44.196146
+Create Date: 2020-07-24 11:23:03.343268
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2ece0b0eb9e2'
+revision = 'ae2043304074'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,8 +21,10 @@ def upgrade():
     op.create_table('User',
     sa.Column('id', sa.String(length=255), autoincrement=False, nullable=False),
     sa.Column('userRole', sa.String(length=80), nullable=False),
-    sa.Column('password', sa.String(length=255), nullable=False),
-    sa.Column('email', sa.String(length=255), nullable=False),
+    sa.Column('password', sa.String(length=1023), nullable=False),
+    sa.Column('targetBehavior', sa.String(length=1023), nullable=False),
+    sa.Column('homeSchoolGoal', sa.String(length=1023), nullable=False),
+    sa.Column('email', sa.String(length=1023), nullable=False),
     sa.Column('phoneNumber', sa.String(length=80), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -30,7 +32,7 @@ def upgrade():
     op.create_table('ActionPlan',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('userId', sa.String(length=255), nullable=True),
-    sa.Column('stepName', sa.String(length=255), nullable=True),
+    sa.Column('stepName', sa.String(length=1023), nullable=True),
     sa.Column('order', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['userId'], ['User.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -39,13 +41,16 @@ def upgrade():
     op.create_table('Entry',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('userId', sa.String(length=255), nullable=True),
-    sa.Column('actionPlanOne', sa.String(length=255), nullable=False),
-    sa.Column('actionPlanTwo', sa.String(length=255), nullable=True),
-    sa.Column('actionPlanThree', sa.String(length=255), nullable=True),
-    sa.Column('actionPlanFour', sa.String(length=255), nullable=True),
-    sa.Column('actionPlanFive', sa.String(length=255), nullable=True),
+    sa.Column('actionPlanOne', sa.String(length=1023), nullable=False),
+    sa.Column('actionPlanTwo', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanThree', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanFour', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanFive', sa.String(length=1023), nullable=True),
+    sa.Column('targetBehavior', sa.String(length=1023), nullable=False),
+    sa.Column('homeSchoolGoal', sa.String(length=1023), nullable=False),
     sa.Column('goalRating', sa.Integer(), nullable=False),
     sa.Column('date', sa.Date(), nullable=True),
+    sa.Column('signature', sa.String(length=1023), nullable=False),
     sa.ForeignKeyConstraint(['userId'], ['User.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')

@@ -3,7 +3,7 @@
 {% block head %}
     {{ super() }}
     <link href="{{ (url_for('static', filename='addentry.css') )}}" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
     <script>
         /*
         function appendActionPlan() {
@@ -53,7 +53,6 @@
         };
 
         $( document ).ready(function() {
-            console.log("heloo");
             let data = JSON.parse('{{data|tojson|safe}}');
             let today = new Date().toISOString().substr(0,10);
             console.log(data);
@@ -71,6 +70,7 @@
             createActionPlans(data);
         })
     </script>
+
 {% endblock %}
 {% block content %}
     <div class="container shadow p-3 mb-5 bg-white rounded">
@@ -89,7 +89,7 @@
             {% endif %}
         </div>
         <!-- @todo: make sure screen reader compliant and also check out need validation --> 
-        <form action="{{ url_for('submitted') }}" method="POST">
+        <form action="{{ url_for('submitted') }}" method="POST" id="form-entry">
             <div class="basic-info">
                 <div class="row justify-content-center">
                     <div class="col-md-4">
@@ -142,61 +142,92 @@
             </div>
             -->
             <div class="goalRange">
-                <div class="teacher-eval">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <h3>Teacher Evaluation</h3>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-md-8" id="rateGoal">
-                            <label for="goalRangeTeacher">At the end of the day, please indicate how closely the above GOAL was met.</label>
-                            <select class="form-control" id="goalRangeTeacher" name="goalRangeTeacher">
-                                <option>Situation significantly worse</option>
-                                <option>Situation somewhat worse</option>
-                                <option selected>No progress</option>
-                                <option>Situation somewhat better</option>
-                                <option>Situation significantly better</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <label for="signatureTeacher">Signature of Teacher</label>
-                            <input type="text" class="form-control" id="signatureTeacher" name="signatureTeacher">
-                        </div>
+                <div class="row justify-content-center teacher-eval">
+                    <div class="col-md-8">
+                        <h3>Teacher Evaluation</h3>
                     </div>
                 </div>
-                <!-- Parent Eval -->
-                <div class="parent-eval">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <h3>Parent Evaluation</h3>
-                        </div>
+                <div class="row justify-content-center parent-eval">
+                    <div class="col-md-8">
+                        <h3>Parent Evaluation</h3>
                     </div>
-                    <div class="row justify-content-center">
-                        <div class="col-md-8" id="rateGoal">
-                            <label for="goalRangeParent">At the end of the day, please indicate how closely the above GOAL was met.</label>
-                            <select class="form-control" id="goalRangeParent" name="goalRangeParent">
-                                <option>Situation significantly worse</option>
-                                <option>Situation somewhat worse</option>
-                                <option selected>No progress</option>
-                                <option>Situation somewhat better</option>
-                                <option>Situation significantly better</option>
-                            </select>
-                        </div>
-                        <div class="col-md-8" id="goalRangeParent">
-                            <label for="signatureParent">Signature of Parent</label>
-                            <input type="text" class="form-control" id="signatureParent" name="signatureParent">
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-md-8" id="rateGoal">
+                        <label for="goalRange">At the end of the day, please indicate how closely the above GOAL was met.</label>
+                        <select class="form-control" id="goalRange" name="goalRange">
+                            <option>Situation significantly worse</option>
+                            <option>Situation somewhat worse</option>
+                            <option selected>No progress</option>
+                            <option>Situation somewhat better</option>
+                            <option>Situation significantly better</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+                <!--
+                <div class="col-md-8">
+                    <label for="signature">Signature</label>
+                    <input type="text" class="form-control" id="signature" name="signature">
+                </div>
+            -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h3>Signature</h3>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div id="signature-pad" class="signature-pad">
+                    <div class="signature-pad--body">
+                        <canvas></canvas>
+                    </div>
+                    <div class="signature-pad--actions">
+                        <div class="row justify-content-center">
+                            <div class="col-md-4 signature-button">
+                                <button type="button" class="btn btn-outline-primary btn-block clear" data-action="clear">Clear</button>
+                                <!-- <button type="button" class="button save" data-action="save">Save</button> -->
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center submit-data">
-                <button class="btn btn-dark" type="submit">Submit data</button>
+            <input type="hidden" id="signatureData" name="signatureData" value="">
+            <div id="submit-data" class="row justify-content-center submit-data">
+                <button class="btn btn-dark" data-action="submit" type="submit">Submit data</button>
             </div>
         </form>
     </div>
 
+    <script>
+        var canvas = document.querySelector("canvas");
+        console.log(canvas)
+        console.log("signature pad created")
+        var signaturePad = new SignaturePad(canvas);
 
+        var submitWrapper = document.getElementById("submit-data");
+        var submitButton = submitWrapper.querySelector("[data-action=submit]");
+
+        var signatureWrapper = document.getElementById("signature-pad");
+        var clearButton = signatureWrapper.querySelector("[data-action=clear]");
+
+        clearButton.addEventListener("click", function (event) {
+            signaturePad.clear();
+        });
+
+        submitButton.addEventListener("click", function (event) {
+            if (signaturePad.isEmpty()) {
+                event.preventDefault();
+            } else {
+                event.preventDefault();
+                //const signatureData = signaturePad.toData();
+                var signatureData = signaturePad.toDataURL();
+                console.log(signatureData);
+                var signatureField = document.getElementById("signatureData");
+                signatureField.value = signatureData;
+                //document.getElementById("form-entry").submit();
+                console.log(document.getElementById("form-entry").elements);
+                document.getElementById("form-entry").submit();
+            }
+        })
+    </script>
 {% endblock %}

@@ -10,19 +10,19 @@ from twilio.rest import Client
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import *
 
+from sqlalchemy import exc
+
 app = Flask(__name__)
-#sess = Session()
 
 app.debug = True
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://kjmuultbvkoaqd:56ac542cebad0a7473deb0c24d9a87daab81dd0511b4925f9e552fe834d1f1fd@ec2-34-193-42-173.compute-1.amazonaws.com:5432/d76s1h363rpp0'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ryehoqoimamdpg:7420762e6c90e7ffadefb487e90e9844769d64b7b03035d8c86ec004954dda05@ec2-34-199-149-157.compute-1.amazonaws.com:5432/d11d2f8nejvhgg'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'super secret key'
-#sess.init_app(app)
 # TODO: HAVE TO CHANGE THE HEROKU STUFF TO WORK REGARDLESS. MOVING ENVIRONMENT VARIABLES
 # TODO: fix these to move onto heroku
 SENDGRID_API_KEY = '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'
+ADMIN_EMAIL = 'billyjang7@gmail.com'
 
 db = SQLAlchemy(app)
 from models import *
@@ -40,40 +40,68 @@ loggedIn=False
 # TODO: cascade on database
 # TODO: access control
 
+
 @app.route('/', methods=['GET','POST'])
 def home():
+    #logging in
     if request.method=='POST':
-        session.pop('userID', None)
+        logout_user()
         userID = request.form['userID']
-        matching_ids = User.query.filter_by(id=userID)
-        if matching_ids.count() != 1:
-            return redirect(url_for('home'))
+        test_password = request.form['password']
+
+        error = None
+        try:
+            user = get_user(userID)
+        except IndexError:
+            error = "No User found with that ID."
         else:
-            session['userID'] = userID
-            password = request.form['password']
-            verify_password = matching_ids.with_entities(User.password).all()[0][0]
-            if pwd_context.verify(password, verify_password):
-                print(matching_ids.with_entities(User.userRole).all()[0][0])
-                session['role'] = matching_ids.with_entities(User.userRole).all()[0][0]
+            if verify_password(test_password, user.password):
+                login_user(user.id, user.userRole)
                 return redirect(url_for('landing'))
             else:
-                return redirect(url_for('home'))            
+                error = "Incorrect Password. Click the Forgot Password button if you have forgotten."
+        return render_template('login.html', error=error)
     else:
+        #maybe logout_user if they go here.
         return render_template('login.html')
 
-@app.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html')
+def get_user(userID):
+    return User.query.filter_by(id=userID).all()[0]
 
-@app.route('/forgotnotificationsent', methods=["POST"])
+def logout_user():
+    session.pop('userID', None)
+    session.pop('role', None)
+
+def login_user(userID, role):
+    session['userID'] = userID
+    session['role'] = role
+
+def verify_password(test_password, real_password):
+    return pwd_context.verify(test_password, real_password)
+
+@app.route('/forgotpassword', methods=['POST', 'GET'])
+def forgotpassword():
+    if request.method == 'POST':
+        userId = request.form['userId']
+        # TODO: Keeping it as this email because the user may have also forgotten their id. Ask Dr. Azad what she wants.
+        from_email = 'wjang20@amherst.edu'
+        subject = 'Forgotten Password'
+        message_body = userId + ' has forgotten their password.'
+        try:
+            send_email(ADMIN_EMAIL, from_email, subject, message_body)
+        except:
+            return redirect(url_for('failure'))
+        return render_template('forgotpasswordsuccess.html')
+    else:
+        return render_template('forgotpassword.html')
+
+@app.route('/forgotnotificationsent')
 def forgotnotificationsent():
-    userId = request.form['userId']
-    admin_email = 'gfa2111@cumc.columbia.edu'
-    from_email = 'wjang20@amherst.edu'
-    subject = 'Forgotten Password'
-    message_body = userId + ' has forgotten their password.'
-    send_email(admin_email, from_email, subject, message_body)
     return render_template('forgotpasswordsuccess.html')
+
+@app.route('/failure')
+def failure():
+    return "Something went wrong. Contact administrator."
 
 @app.route('/forgotpasswordsuccess')
 def forgotpasswordsuccess():
@@ -81,77 +109,72 @@ def forgotpasswordsuccess():
 
 @app.route('/newaccount', methods=['POST', 'GET'])
 def newaccount():
-    return render_template('newaccount.html')
-
-@app.route('/newaccountsuccess', methods=['POST', 'GET'])
-def newaccountsuccess():
-    if request.method=='POST':
-        empty = False
-        for k,v in request.form.items():
-            if request.form[k]=="":
-                print(request.form[k])
-                empty=True
-        if empty:
-            flash('Must fill out all required fields')
-            return redirect(url_for('newaccount'))
-        if request.form['password'] != request.form['passwordAgain']:
-            flash('Passwords must match')
-            return redirect(url_for('newaccount'))
-        email=request.form['email']
+    if request.method == 'POST':
+        email = request.form['email']
         userID = request.form['userId']
         userRole = request.form['userRole']
         phoneNumber = request.form['phoneNumber']
-        #targetBehavior=request.form['targetBehavior']
-        #homeSchoolGoal=request.form['homeSchoolGoal']
-        targetBehavior="Not set"
-        homeSchoolGoal="Not set"
-        # TODO: check if passwords are the same in javascript or jquery
+        targetBehavior = "Not set"
+        homeSchoolGoal = "Not set"
+
         password = request.form['password']
-        hashed = pwd_context.hash(password)
+        hashedPassword = hash_password(password)
         try:
-            #new_user = User(userID,userRole, hashed, targetBehavior, homeSchoolGoal,email)
-            new_user = User(userID, userRole, hashed, targetBehavior, homeSchoolGoal, email, phoneNumber)
-            db.session.add(new_user)
-            db.session.commit()
+            create_new_user(userID, userRole, hashedPassword, targetBehavior, homeSchoolGoal, email, phoneNumber)
             return render_template('newaccountsuccess.html')
-        except Exception as e:
-            print(str(e))
-            return redirect(url_for('newaccount'))
+        except exc.IntegrityError as e:
+            # ID already used, wrong format, too long of an input
+            error = str(e)
+            return render_template('newaccount.html', error=error)
     else:
-        # TODO: CHANGE THIS
-        return render_template('newaccountsuccess.html')
+        return render_template('newaccount.html')
+
+@app.route('/newaccountsuccess')
+def newaccountsuccess():
+    return render_template('newaccountsuccess.html')
+
+def hash_password(password):
+    return pwd_context.hash(password)
+
+def create_new_user(userID, userRole, hashedPassword, targetBehavior, homeSchoolGoal, email, phoneNumber):
+    new_user = User(userID, userRole, hashedPassword, targetBehavior, homeSchoolGoal, email, phoneNumber)
+    db.session.add(new_user)
+    db.session.commit()
 
 @app.route('/landing')
 def landing():
     return render_template('landing.html')
 
-@app.route('/contactus')
+@app.route('/contactus', methods=['POST', 'GET'])
 def contactus():
-    return render_template('contactus.html')
+    if request.method == 'POST':
+        body = request.form['message']
+        #current_user = User.query.filter_by(id=session['userID']).all()[0]
+        user = get_user(session['userID'])
+        from_email = user.email
+        send_email(ADMIN_EMAIL, from_email, 'Contact request', body)
+        return "Email Sent!"
+    else:
+        return render_template('contactus.html')
 
-@app.route('/contactussent', methods=["POST"])
+@app.route('/contactussent')
 def contactussent():
-    body = request.form['message']
-    current_user = User.query.filter_by(id=session['userID']).all()[0]
-    from_email = current_user.email
-    send_email('gfa2111@cumc.columbia.edu', from_email, 'Contact request', body)
-    return "Email Sent!"
-    
+    return "Contact request successfully sent. Press back to go back to the landing page."
+
+#'gfa2111@cumc.columbia.edu'
 @app.route('/notecalendar')
 def notecalendar():
     current_user = User.query.filter_by(id=session['userID']).all()[0]
     entry_data = {'date' : [e.date for e in current_user.entries]}
     return render_template('notecalendar.html', data=entry_data)
 
-# TODO: There is an ordering that must be followed--does something break if Gazi doesn't enter in the values in time first?
+# TODO: Breaks if Dr. Azad doesn't enter in action plans first. But that shouldn't happen.
 
 # adding entry and viewing data
 @app.route('/addentry') # add required message here?
 def addentry():
     try:
         if session['userID'] != None:
-            print(session.get('userID'))
-            print(session.get('role'))
             current_user = User.query.filter_by(id=session['userID']).all()[0]
             #return render_template('addentry.html', data=session.get('role', None)
             user_data = {'userID' : current_user.id, 'role' : current_user.userRole, 'targetBehavior' : current_user.targetBehavior,
@@ -163,50 +186,34 @@ def addentry():
 @app.route('/submitted', methods=['POST'])
 def submitted():
     if request.method=='POST':
-        userID=request.form['userID']
-        date=request.form['date']
-        targetBehavior=request.form['targetBehavior']
-        homeSchoolGoal=request.form['homeSchoolGoal']
-        actionPlans=request.form.getlist('actionPlan')
-        print('hey')
-        print(actionPlans)
-        # TEMP FIX
-        goalRange=None
-        if session['role'] == 'Teacher':
-            goalRange = request.form['goalRangeTeacher']
-        else:
-            goalRange = request.form['goalRangeParent']
-        print(userID)
-        print(goalRange)
-        print(targetBehavior)
-        print(homeSchoolGoal)
-        #print(actionPlans)
-        if userID=='' or goalRange==None or targetBehavior=='' or homeSchoolGoal=='':
-            #return render_template('addentry.html', message="*Please fill out required fields*")
-            flash("Must fill out all fields")
-            return redirect(url_for('addentry'))
-        else:
-            print(date)
-            current_user = User.query.filter_by(id=session['userID']).all()[0]
-            mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
-            new_entry = Entry(userId=current_user.id, goalRating=mapping[goalRange], date=date, targetBehavior=current_user.targetBehavior, homeSchoolGoal=current_user.targetBehavior)
-            # TODO: more elegant way to do this. FOR TESTING PURPOSES ONLY
-            
-            new_entry.actionPlanOne = actionPlans[0]
-            if(len(actionPlans) > 1):
-                new_entry.actionPlanTwo = actionPlans[1]
-            if(len(actionPlans) > 2):
-                new_entry.actionPlanThree = actionPlans[2]
-            if(len(actionPlans) > 3):
-                new_entry.actionPlanFour = actionPlans[3]
-            if(len(actionPlans) > 4):
-                new_entry.actionPlanFive = actionPlans[4]
-            
-            current_user.entries.append(new_entry)
-            db.session.add(new_entry)
-            db.session.add(current_user)
-            db.session.commit()
-            return render_template('submitted.html')
+        userID = request.form['userID']
+        date = request.form['date']
+        targetBehavior = request.form['targetBehavior']
+        homeSchoolGoal = request.form['homeSchoolGoal']
+        actionPlans = request.form.getlist('actionPlan')
+        goalRange=request.form['goalRange']
+        signature = request.form['signatureData']
+
+        user = get_user(session['userID'])
+        mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
+        new_entry = Entry(userId=current_user.id, goalRating=mapping[goalRange], date=date, targetBehavior=current_user.targetBehavior, homeSchoolGoal=current_user.targetBehavior)
+        
+        # TODO: Modify db for better solution. Should be a separate table with a position index. FOR TESTING PURPOSES ONLY
+        new_entry.actionPlanOne = actionPlans[0]
+        if(len(actionPlans) > 1):
+            new_entry.actionPlanTwo = actionPlans[1]
+        if(len(actionPlans) > 2):
+            new_entry.actionPlanThree = actionPlans[2]
+        if(len(actionPlans) > 3):
+            new_entry.actionPlanFour = actionPlans[3]
+        if(len(actionPlans) > 4):
+            new_entry.actionPlanFive = actionPlans[4]
+        
+        current_user.entries.append(new_entry)
+        db.session.add(new_entry)
+        db.session.add(current_user)
+        db.session.commit()
+        return render_template('submitted.html')
 
 @app.route('/readdata')
 def readdata():
