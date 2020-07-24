@@ -74,7 +74,7 @@ class Entry(db.Model):
     homeSchoolGoal = db.Column(db.String(1023), nullable=False)
     goalRating = db.Column(db.Integer(), nullable=False)
     date = db.Column(db.Date())
-    signature = db.Column(db.String(1023), nullable=False)
+    signature = db.Column(db.String(50000), nullable=False)
 
     def serialize(self):
         action_plans = [self.actionPlanOne]

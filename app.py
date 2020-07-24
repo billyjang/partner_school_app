@@ -196,7 +196,7 @@ def submitted():
 
         user = get_user(session['userID'])
         mapping = {"Situation significantly worse":-2, "Situation somewhat worse":-1, "No progress":0, "Situation somewhat better": 1, "Situation significantly better":2}
-        new_entry = Entry(userId=current_user.id, goalRating=mapping[goalRange], date=date, targetBehavior=current_user.targetBehavior, homeSchoolGoal=current_user.targetBehavior)
+        new_entry = Entry(userId=user.id, goalRating=mapping[goalRange], date=date, targetBehavior=user.targetBehavior, homeSchoolGoal=user.homeSchoolGoal, signature=signature)
         
         # TODO: Modify db for better solution. Should be a separate table with a position index. FOR TESTING PURPOSES ONLY
         new_entry.actionPlanOne = actionPlans[0]
@@ -209,9 +209,9 @@ def submitted():
         if(len(actionPlans) > 4):
             new_entry.actionPlanFive = actionPlans[4]
         
-        current_user.entries.append(new_entry)
+        user.entries.append(new_entry)
         db.session.add(new_entry)
-        db.session.add(current_user)
+        db.session.add(user)
         db.session.commit()
         return render_template('submitted.html')
 
