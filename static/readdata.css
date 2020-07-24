@@ -1,4 +1,8 @@
 .hiddenRow {
     padding-top: 0 !important;
+}
 
+table {
+    table-layout: fixed;
+    width: 90%;
 }
