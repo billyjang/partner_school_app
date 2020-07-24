@@ -7,9 +7,10 @@
         $(document).ready(function() {
             let table_data = {{data | safe}};
             let behavior = {{behavior | tojson | safe}};
+            let homeSchoolGoal = {{homeSchoolGoal | tojson | safe}};
             console.log(behavior)
             console.log(table_data);
-            loadTableData(table_data, behavior);
+            loadTableData(table_data, behavior, homeSchoolGoal);
         });
 
         /*
@@ -25,7 +26,7 @@
         $('.collapse').on('show.bs.collapse', function () {
             $('.collapse.in').collapse('hide');
         });
-        function loadTableData(table_data, behavior) {
+        function loadTableData(table_data, behavior, homeSchoolGoal) {
             let tableBody = document.getElementById('tableData');
             let dataHTML = "";
             let count = 1;
@@ -37,6 +38,7 @@
                 dataHTML += `<tr data-toggle="collapse" data-target="#demo${count}">`;
                 dataHTML += `  <td>${row.date}</td>`;
                 dataHTML += `  <td>${behavior.targetBehavior}</td>`;
+                dataHTML += `  <td>${homeSchoolGoal.homeSchoolGoal}</td>`;
                 dataHTML += `  <td>${row.goal_rating}</td>`;
                 dataHTML += `</tr>`;
                 dataHTML += `<tr>`;
@@ -61,6 +63,7 @@
             <tr>
                 <th>Date</th>
                 <th>Target Behavior</th>
+                <th>Home/School Goal</th>
                 <th>Rating</th>
             </tr>
         </thead>

@@ -23,6 +23,7 @@ app.secret_key = 'super secret key'
 # TODO: fix these to move onto heroku
 SENDGRID_API_KEY = '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'
 ADMIN_EMAIL = 'billyjang7@gmail.com'
+ADMINROLE = "Admin"
 
 db = SQLAlchemy(app)
 from models import *
@@ -57,7 +58,11 @@ def home():
         else:
             if verify_password(test_password, user.password):
                 login_user(user.id, user.userRole)
-                return redirect(url_for('landing'))
+
+                if user.userRole == ADMINROLE:
+                    return redirect(url_for('adminlanding'))
+                else:
+                    return redirect(url_for('landing'))
             else:
                 error = "Incorrect Password. Click the Forgot Password button if you have forgotten."
         return render_template('login.html', error=error)
@@ -212,19 +217,23 @@ def submitted():
         user.entries.append(new_entry)
         db.session.add(new_entry)
         db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except exc.IntegrityError:
+            return "Can't enter two notes for one day! Choose another date for this entry."
         return render_template('submitted.html')
 
 @app.route('/readdata')
 def readdata():
     try:
         if session['userID'] != None:
-            current_user = User.query.filter_by(id=session['userID']).all()[0]
-            all_entries = current_user.entries
+            user = get_user(session['userID'])
+            all_entries = user.entries
             table_data = json.dumps([entry.serialize() for entry in all_entries])
             # TODO: IF targetbehavior fixed, have to change this
-            targetBehavior = {'targetBehavior' : current_user.targetBehavior}
-            return render_template('readdata.html', data=table_data, behavior=targetBehavior)
+            targetBehavior = {'targetBehavior' : user.targetBehavior}
+            homeSchoolGoal = {'homeSchoolGoal' : user.homeSchoolGoal}
+            return render_template('readdata.html', data=table_data, behavior=targetBehavior, homeSchoolGoal=homeSchoolGoal)
     except KeyError:
         return "To fill in later. Redirect to login."
 
@@ -245,7 +254,6 @@ def adminlanding():
     else:
         return "Access denied."
 
-ADMINROLE = "Admin"
 def authenticateAdmin(userRole):
     return userRole == ADMINROLE
 # TODO: finish these after config the db again
@@ -253,6 +261,7 @@ def authenticateAdmin(userRole):
 
 @app.route('/adminnotifications')
 def adminnotifications():
+    # Don't think I need to pass in data here anymore.
     if authenticateAdmin(session['role']):
         all_users = User.query.all()
         all_data = []
@@ -280,7 +289,7 @@ def notificationsent():
         to_send_emails = [email[0] for email in all_emails]
         #send_email(to_send_emails, 'wjang20@amherst.edu', 'Reminder', body)
         for to_email in to_send_emails:
-            send_email(to_email, 'wjang20@amherst.edu', 'Reminder', body)
+            send_email(to_email, ADMIN_EMAIL, 'Reminder', body)
     elif message_type == "SMS":
         #send_sms('+17153796650', body)
         # MAKE THIS CLEANER

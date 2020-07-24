@@ -73,7 +73,7 @@ class Entry(db.Model):
     targetBehavior = db.Column(db.String(1023), nullable=False)
     homeSchoolGoal = db.Column(db.String(1023), nullable=False)
     goalRating = db.Column(db.Integer(), nullable=False)
-    date = db.Column(db.Date())
+    date = db.Column(db.Date(), unique=True)
     signature = db.Column(db.String(50000), nullable=False)
 
     def serialize(self):

@@ -14,7 +14,7 @@
                 innerHTML += `<li>\n`;
                 if(counter < dateLength) {
                     innerHTML += `<a href="{{url_for('readdata')}}"> Home/School Note </a>\n`;
-                    innerHTML += `<a href="{{url_for('readdata')}}"> Date Completed: ${data.date[counter]} </a>\n`;
+                    innerHTML += `<a href="{{url_for('readdata')}}"> For Date: ${data.date[counter]} </a>\n`;
                 } else {
                     innerHTML += `<a href="{{url_for('addentry')}}"> Home/School Note </a>\n`;
                     innerHTML += `<a href="{{url_for('addentry')}}"> Not completed </a>\n`;
