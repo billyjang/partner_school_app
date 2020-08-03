@@ -70,22 +70,25 @@ class Entry(db.Model):
     actionPlanThree = db.Column(db.String(1023))
     actionPlanFour = db.Column(db.String(1023))
     actionPlanFive = db.Column(db.String(1023))
+    actionPlanSix = db.Column(db.String(1023))
+    actionPlanSeven = db.Column(db.String(1023))
+    actionPlanEight = db.Column(db.String(1023))
+    actionPlanNine = db.Column(db.String(1023))
+    actionPlanTen = db.Column(db.String(1023))
     targetBehavior = db.Column(db.String(1023), nullable=False)
     homeSchoolGoal = db.Column(db.String(1023), nullable=False)
     goalRating = db.Column(db.Integer(), nullable=False)
-    date = db.Column(db.Date(), unique=True)
+    # TODO: Date uniqueness fix.
+    date = db.Column(db.Date())
     signature = db.Column(db.String(50000), nullable=False)
 
     def serialize(self):
+        all_action_plans = [self.actionPlanOne, self.actionPlanTwo, self.actionPlanThree, self.actionPlanFour, self.actionPlanFive,
+                            self.actionPlanSix, self.actionPlanSeven, self.actionPlanEight, self.actionPlanNine, self.actionPlanTen]
         action_plans = [self.actionPlanOne]
-        if self.actionPlanTwo != None:
-            action_plans.append(self.actionPlanTwo)
-        if self.actionPlanThree != None:
-            action_plans.append(self.actionPlanThree)
-        if self.actionPlanFour != None:
-            action_plans.append(self.actionPlanFour)
-        if self.actionPlanFive != None:
-            action_plans.append(self.actionPlanFive)
+        for ap in all_action_plans[1:]:
+            if ap != None:
+                action_plans.append(ap)
         return {
             'date':self.date.isoformat(),
             'action_plans':action_plans,

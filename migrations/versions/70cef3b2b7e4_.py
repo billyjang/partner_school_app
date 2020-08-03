@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b5e0c6fcf1a2
+Revision ID: 70cef3b2b7e4
 Revises: 
-Create Date: 2020-07-24 12:54:38.432259
+Create Date: 2020-08-02 20:50:36.260621
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b5e0c6fcf1a2'
+revision = '70cef3b2b7e4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,11 @@ def upgrade():
     sa.Column('actionPlanThree', sa.String(length=1023), nullable=True),
     sa.Column('actionPlanFour', sa.String(length=1023), nullable=True),
     sa.Column('actionPlanFive', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanSix', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanSeven', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanEight', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanNine', sa.String(length=1023), nullable=True),
+    sa.Column('actionPlanTen', sa.String(length=1023), nullable=True),
     sa.Column('targetBehavior', sa.String(length=1023), nullable=False),
     sa.Column('homeSchoolGoal', sa.String(length=1023), nullable=False),
     sa.Column('goalRating', sa.Integer(), nullable=False),
@@ -53,7 +58,6 @@ def upgrade():
     sa.Column('signature', sa.String(length=50000), nullable=False),
     sa.ForeignKeyConstraint(['userId'], ['User.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('date'),
     sa.UniqueConstraint('id')
     )
     # ### end Alembic commands ###

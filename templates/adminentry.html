@@ -50,7 +50,7 @@
                 + `id="${tabContentId}" role="tabpanel" aria-labelledby="${tabContentAriaLabel}">\n`;
             tabContentHTML += `<form action="{{ url_for('adminpost') }}" method="POST">\n`;
             let apCounter;
-            for(apCounter = 1; apCounter <= 5; apCounter += 1) {
+            for(apCounter = 1; apCounter <= 10; apCounter += 1) {
                 let apId = baseActionPlanId + `${apCounter}`;
                 tabContentHTML += `<div class="row justify-content-center">\n`;
                 tabContentHTML += `<div class="col-md-10">\n`;

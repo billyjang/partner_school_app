@@ -213,7 +213,17 @@ def submitted():
             new_entry.actionPlanFour = actionPlans[3]
         if(len(actionPlans) > 4):
             new_entry.actionPlanFive = actionPlans[4]
-        
+        if(len(actionPlans) > 5):
+            new_entry.actionPlanSix = actionPlans[5]
+        if(len(actionPlans) > 6):
+            new_entry.actionPlanSeven = actionPlans[6]
+        if(len(actionPlans) > 7):
+            new_entry.actionPlanEight = actionPlans[7]
+        if(len(actionPlans) > 8):
+            new_entry.actionPlanNine = actionPlans[8]
+        if(len(actionPlans) > 9):
+            new_entry.actionPlanTen = actionPlans[9]
+
         user.entries.append(new_entry)
         db.session.add(new_entry)
         db.session.add(user)
@@ -387,15 +397,16 @@ def adminpost():
         current_user = User.query.filter_by(id=userId).all()[0]
         # todo: add targetbehavior and homeschoolgoal
         new_aps = []
-        for i in range(5):
+        for i in range(10):
             if req[req_keys[i]] == "":
                 continue
             new_ap = ActionPlan(order=i, stepName=req[req_keys[i]])
             new_aps.append(new_ap)
             db.session.add(new_ap)
 
-        current_user.targetBehavior=req[req_keys[5]]
-        current_user.homeSchoolGoal=req[req_keys[6]]
+        # TODO: obviously change this, just for testing
+        current_user.targetBehavior=req[req_keys[10]]
+        current_user.homeSchoolGoal=req[req_keys[11]]
         
         current_user.actionplans=new_aps
         db.session.add(current_user)
