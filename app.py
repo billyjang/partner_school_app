@@ -271,72 +271,62 @@ def authenticateAdmin(userRole):
 
 @app.route('/adminnotifications')
 def adminnotifications():
-    # Don't think I need to pass in data here anymore.
     if authenticateAdmin(session['role']):
         all_users = User.query.all()
         all_data = []
         for user in all_users:
-            user_entry = {'userId' : user.id, 'targetBehavior' : user.targetBehavior, 'homeSchoolGoal': user.homeSchoolGoal, 'actionPlans' : [ap.stepName for ap in user.actionplans]}
+            user_entry = {'userId' : user.id}
             all_data.append(user_entry)
         return render_template('adminnotifications.html', data=all_data)
     else:
         return "Access denied."
 
-@app.route('/notificationsent', methods=["POST"])
-def notificationsent():
-    message_type = request.form['message-type']
-    body = request.form['message']
-    # TODO: Test emails more, and send one at a time.
-    if message_type == "Email":
-        all_emails = []
-        if request.form['audience'] == 'All':
-            all_emails = User.query.with_entities(User.email).all()
-        elif request.form['audience'] == 'Parents':
-            all_emails = User.query.filter_by(userRole='Parent').with_entities(User.email).all()
-        elif request.form['audience'] == 'Teachers':
-            all_emails = User.query.filter_by(userRole='Teacher').with_entities(User.email).all()
+@app.route('/adminnotificationpost', methods=["POST"])
+def adminnotificationpost():
+    if authenticateAdmin(session['role']):
+        try:
+            req = request.form.to_dict()
+            req_keys = list(req.keys())
+            print(req)
 
-        to_send_emails = [email[0] for email in all_emails]
-        #send_email(to_send_emails, 'wjang20@amherst.edu', 'Reminder', body)
-        for to_email in to_send_emails:
-            send_email(to_email, ADMIN_EMAIL, 'Reminder', body)
-    elif message_type == "SMS":
-        #send_sms('+17153796650', body)
-        # MAKE THIS CLEANER
-        # test and do config vigs
-        all_sms = []
-        if request.form['audience'] == 'All':
-            all_sms = User.query.with_entities(User.phoneNumber).all()
-        elif request.form['audience'] == 'Parents':
-            all_sms = User.query.filter_by(userRole='Parent').with_entities(User.phoneNumber).all()
-        elif request.form['audience'] == 'Teachers':
-            all_sms = User.query.filter_by(userRole='Teacher').with_entities(User.phoneNumber).all()
-        
-        to_send_sms = [sms[0] for sms in all_sms]
-        for to_sms in to_send_sms:
-            send_sms(to_sms, body)
-    
-    return render_template('notificationsentsuccess.html')
-'''
-def send_email(to_emails, from_email, subject, message_body):
-    to_list = Personalization()
-    for email in to_emails:
-        to_list.add_to(Email(email))
-    message = Mail(
-        from_email = from_email, 
-        subject = subject, 
-        html_content = '<strong>' + message_body + '</strong>'
-        )
-    message.add_personalization(to_list)
-    try:
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e)
-'''
+            audience = req['audience']
+            message_type = req['message-type']
+            body = req['message']
+            success_message = ""
+
+            query = User.query
+            if audience == "Parents":
+                query = query.filter_by(userRole='Parent')
+                success_message = "all parents"
+            elif audience == "Teachers":
+                query = query.filter_by(userRole='Teacher')
+                success_message = "all teachers"
+            elif audience == "Single":
+                query = query.filter_by(id=req['single'])
+                success_message = "user: " + req['single']
+            
+            if message_type == "Email":
+                query = query.with_entities(User.email)
+                all_emails = query.all()
+                to_send_emails = [email[0] for email in all_emails]
+                print(to_send_emails)
+                for to_email in to_send_emails:
+                    send_email(to_email, ADMIN_EMAIL, 'Reminder', body)
+            elif message_type == "SMS":
+                query = query.with_entities(User.phoneNumber)
+                all_sms = query.all()
+                to_send_sms = [sms[0] for sms in all_sms]
+                print(to_send_sms)
+                for to_sms in to_send_sms:
+                    send_sms(to_sms, body)
+            
+            return message_type + " was sucessfully sent to " + success_message + "."
+
+        except RuntimeError:
+            return "Message sending failed! Try again."
+    else:
+        return "Access denied." 
+
 def send_email(to_email, from_email, subject, message_body):
     message = Mail(
         from_email = from_email,

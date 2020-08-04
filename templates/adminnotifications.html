@@ -2,10 +2,46 @@
 {% block title %}Admin Landing{% endblock %}
 {% block head %}
 {{ super() }}
+<script>
+
+    let data = JSON.parse('{{data|tojson|safe}}');
+
+    $(document).ready(function() {    
+        console.log(data);
+    });
+
+    function check_single() {
+        console.log("start")
+        var audience = document.getElementById("audience");
+        var audience_selection = audience.options[audience.selectedIndex].value;
+        if(audience_selection == "Single") {
+            create_single_select();
+        } else {
+            destroy_single_select();
+        }
+    }
+
+    function create_single_select() {
+        let single = document.getElementById("single");
+        var single_inner = `<label for="single">Choose which person to send an alert to:</label>`;
+        single_inner += `<select class="form-control" id="single" name="single">`;
+        for(let row of data) {
+            single_inner += `<option value="` + row.userId + `">` + row.userId + `</option>`;
+        }
+        single_inner += `</select>`;
+        single.innerHTML = single_inner;
+    }
+
+    function destroy_single_select() {
+        let single = document.getElementById("single");
+        single.innerHTML = ``;
+    }
+
+</script>
 {% endblock %}
 {% block content %}
 <div class="container shadow p-3 mb-5 bg-white rounded">
-    <form action="{{ url_for('notificationsent') }}" method="POST">
+    <form method="POST">
         <div class="row">
             <div class="col-md-1">
 
@@ -19,11 +55,16 @@
             </div>
             <div class="col-md-4">
                 <label for="audience">Choose whether to send to all or subset:</label>
-                <select class="form-control" id="audience" name="audience">
-                    <option>All</option>
-                    <option>Parents</option>
-                    <option>Teachers</option>
+                <select class="form-control" id="audience" name="audience" onchange="check_single()">
+                    <option value="All">All</option>
+                    <option value="Parents">Parents</option>
+                    <option value="Teachers">Teachers</option>
+                    <option value="Single">Single</option>
                 </select>
+            </div>
+            <div class="col-md-4" id="single">
+                
+                
             </div>
         </div>
         <div class="row justify-content-center">
@@ -37,4 +78,31 @@
         </div>
     </form>
 </div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h3 id="result">Waiting to send</h3>
+    </div>
+</div>
+
+
+<script>
+    $(document).on('submit', 'form', function(e) {
+        e.preventDefault();
+        //alert('heyoooo');
+        var form = this;
+        console.log(form);
+        $.ajax({
+            method: 'POST',
+            url: {{ url_for('adminnotificationpost') | tojson }},
+            data: $(this).serialize()
+        }).done(showSuccess);
+    });
+
+    function showSuccess(data) {
+        console.log(data);
+        $('#result').text(data);
+        $('#result').css('color', 'green')
+    }
+</script>
 {% endblock %}
